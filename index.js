@@ -21,7 +21,7 @@ client.on('messageCreate', async (message) => {
   const { nonPrefixedDisplayName, isSpecTagged, isStTagged } = getNonPrefixedName(message.member.displayName);
   
   if (message.content === '!dbotc help') {
-    message.reply({content:
+    message.channel.send({content:
     'commands:\n\
     `!dbotc help` : this info block\n\
     `!role undertaker` : list with any character role, and a link to the wiki page will be presented if found\n\
@@ -39,7 +39,6 @@ client.on('messageCreate', async (message) => {
       message.member.setNickname(nonPrefixedDisplayName)
         .catch((err) => replyUnableToChangeNick(message, nonPrefixedDisplayName, err));
     }
-//    message.reply({content:'spec tag request acknowledged'});
   } else if (message.content === '*st') {
     if (!message.member.roles.cache.has(activeStorytellerRole.id)) {
       if (message.member.roles.cache.has(storytellerRole.id)) {
@@ -49,7 +48,7 @@ client.on('messageCreate', async (message) => {
             .catch((err) => replyUnableToChangeNick(message, '(ST) ' + nonPrefixedDisplayName, err));
         }
       } else {
-        message.reply({content: 'you lack permission to claim the active storyteller role'});
+        message.channel.send({content: '`you lack permission to claim the active storyteller role`'});
       }
     } else {
       message.member.roles.remove(activeStorytellerRole).catch(console.error);
@@ -72,9 +71,9 @@ client.on('messageCreate', async (message) => {
             .head(wikiUrl + formattedCharacterRoleName)
 //            .catch (console.error());
     if (resp.status && resp.status === 200) {
-      message.reply({content: wikiUrl + formattedCharacterRoleName});
+      message.channel.send({content: wikiUrl + formattedCharacterRoleName});
     } else {
-      message.reply({content: 'role not found'});
+      message.channel({content: '`character role not found`'});
     }
   }
 })
