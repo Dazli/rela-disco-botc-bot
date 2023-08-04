@@ -95,7 +95,7 @@ function getNonPrefixedName(displayName) {
 
 function replyUnableToChangeNick(message, intendedNick, err) {
   message.reply({content: 'couldn\'t change your nick, type this to change it yourself (only copypaste your name including any prefix):\n\
-    ```/nick ' + intendedNick + '```'});
+    `/nick ' + intendedNick + '`'});
   console.error(err);
 }
 
