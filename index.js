@@ -25,7 +25,7 @@ client.on('messageCreate', async (message) => {
     'commands:\n\
     `!dbotc help` : this info block\n\
     `!role undertaker` : list with any character role, and a link to the wiki page will be presented if found\n\
-    `*!` : set a "spectator" tag (an exclamation mark in front of your name)\n\
+    `*!` : toggle a "spectator" tag and remove active game role (an exclamation mark is placed in front of your name)\n\
     `*st` : a user with the appropriate role may enable/disable the active-ST role and tag "(ST)"'
     });
   } else if (message.content === '*!') {
@@ -82,12 +82,24 @@ async function wikiCharacterLinkRequest(message) {
 //    console.log(formattedCharacterRoleName);
   let resp = await axios
           .head(wikiUrl + formattedCharacterRoleName)
-//            .catch (console.error());
-  if (resp.status && resp.status === 200) {
-    message.channel.send({content: wikiUrl + formattedCharacterRoleName});
-  } else {
-    message.channel({content: '`character role not found`'});
-  }
+          .then(resp => {
+            if (resp.status && resp.status === 200) {
+              message.channel.send({content: wikiUrl + formattedCharacterRoleName});
+            } else {
+              message.channel.send({content: '`query success - character role not found`'});
+            }
+          })
+          .catch(error =>  {
+            if  (error.response.status === 404) {
+              message.channel.send({content: '`query failure - character role not found`'});
+            } else if (error.response.status === 503) {
+              message.channel.send({content: '`503 - wiki unavailable`'});
+            } else if ([400,500,501,502,504].includes(error.response.status)) {
+              message.channel.send({content: '`unexpected error, please contact maintainer`'});
+            } else {
+              message.channel.send({content: '`unexpected error, please contact maintainer`'});
+            }
+          });
 }
 
 function getNonPrefixedName(displayName) {
