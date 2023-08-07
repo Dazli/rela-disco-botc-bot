@@ -73,6 +73,7 @@ function specToggle(nonPrefixedDisplayName, isSpecTagged, isStTagged, message, a
     message.member.setNickname(nonPrefixedDisplayName)
       .catch((err) => replyUnableToChangeNick(message, nonPrefixedDisplayName, err));
   }
+  setTimeout(() => message.delete(), 5000);
 }
 
 function newPlayerToggle(nonPrefixedDisplayName, isNewPlayerTagged, message) {
@@ -83,6 +84,7 @@ function newPlayerToggle(nonPrefixedDisplayName, isNewPlayerTagged, message) {
     message.member.setNickname(message.member.displayName.slice(0, -4))
       .catch((err) => replyUnableToChangeNick(message, message.member.displayName + ' :: without the trailing [N]', err));
   }
+  setTimeout(() => message.delete(), 5000);
 }
 
 function stToggle(nonPrefixedDisplayName, isStTagged, message, storytellerRole, activeStorytellerRole) {
@@ -103,6 +105,7 @@ function stToggle(nonPrefixedDisplayName, isStTagged, message, storytellerRole, 
         .catch((err) => replyUnableToChangeNick(message, nonPrefixedDisplayName, err));
     }
   }
+  setTimeout(() => message.delete(), 5000);
 }
 
 function coStToggle(nonPrefixedDisplayName, isStTagged, isCoStTagged, message, activeStorytellerRole) {
@@ -116,6 +119,7 @@ function coStToggle(nonPrefixedDisplayName, isStTagged, isCoStTagged, message, a
     message.member.setNickname(nonPrefixedDisplayName)
       .catch((err) => replyUnableToChangeNick(message, nonPrefixedDisplayName, err));
   }
+  setTimeout(() => message.delete(), 5000);
 }
 
 function travellerToggle(nonPrefixedDisplayName, isStTagged, isTravellerTagged, message, activeStorytellerRole) {
@@ -129,6 +133,7 @@ function travellerToggle(nonPrefixedDisplayName, isStTagged, isTravellerTagged, 
     message.member.setNickname(nonPrefixedDisplayName)
       .catch((err) => replyUnableToChangeNick(message, nonPrefixedDisplayName, err));
   }
+  setTimeout(() => message.delete(), 5000);
 }
 
 //TODO: this would still require st flagged handling.. potential scrap? or leave st requests separated and remove active-st role by default?
