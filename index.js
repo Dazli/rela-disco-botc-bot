@@ -15,28 +15,46 @@ client.on('ready', () => {
 })
 
 client.on('messageCreate', async (message) => {
-  const wikiRoleRegex = '^!role ([^ ]*)$';
   const storytellerRole = message.guild.roles.cache.find(r => r.name === 'botc-storyteller');
   const activeStorytellerRole = message.guild.roles.cache.find(r => r.name === 'active-botc-storyteller');
-  const { nonPrefixedDisplayName, isSpecTagged, isStTagged, isNewPlayerTagged } = getNonPrefixedName(message.member.displayName);
+  const {
+    nonPrefixedDisplayName,
+    isSpecTagged,
+    isStTagged,
+    isCoStTagged,
+    isTravellerTagged,
+    isNewPlayerTagged
+  } = getNonPrefixedName(message.member.displayName);
   
   if (message.content === '!dbotc help') {
     message.channel.send({content:
     'commands:\n\
     `!dbotc help` : this info block\n\
-    `!role undertaker` : list with any character role, and a link to the wiki page will be presented if found\n\
     `*!` : toggle a "spectator" tag and remove active game role (an exclamation mark is placed in front of your name)\n\
     `*new` : toggle on or off a "new player" tag at the end of your name: "playerName [N]"\n\
-    `*st` : a user with the appropriate role may enable/disable the active-ST role and tag "(ST)"'
+    `*st` : a user with the appropriate role may enable/disable the active-ST role and tag "(ST)"\n\
+    `*cost` : toggle on or off a "co-storyteller" tag prefixing your nickname "(Co-ST)", this will not give you active-ST capabilities\n\
+    `*t` : toggle on or off a "traveler" tag prefixing your nickname "(T)"\n\
+    `!role undertaker` : list with any character role, and a link to the wiki page will be presented if found\n\
+    `!remindme` : set a timer in minutes with a message.. example for 6min timer stating "nominations": !remindme 6 nominations'
     });
   } else if (message.content === '*!') {
     specToggle(nonPrefixedDisplayName, isSpecTagged, isStTagged, message, activeStorytellerRole);
-  } else if (message.content === '*st') {
-    stToggle(nonPrefixedDisplayName, isStTagged, message, storytellerRole, activeStorytellerRole);
   } else if (message.content === '*new') {
     newPlayerToggle(nonPrefixedDisplayName, isNewPlayerTagged, message);
-  } else if (message.content.startsWith('!role ')) {
+  } else if (message.content === '*st') {
+    stToggle(nonPrefixedDisplayName, isStTagged, message, storytellerRole, activeStorytellerRole);
+  } else if (message.content === '*cost') {
+    coStToggle(nonPrefixedDisplayName, isStTagged, isCoStTagged, message, activeStorytellerRole);
+  } else if (message.content === '*t') {
+    travellerToggle(nonPrefixedDisplayName, isStTagged, isTravellerTagged, message, activeStorytellerRole);
+//  } else if (message.content === '*TODO_ANYTHING') {
+//    togglePrefix(message);
+  } else if (message.content.startsWith('!role')) {
+    //TODO: add "!role" vs "!role " error handling and "usage" info response within linkRequest function
     wikiCharacterLinkRequest(message);
+  } else if (message.content.startsWith('!remindme')) {
+    remindMe(message);
   } else if (1==2) {
     let resp = await axios.get(`https://api.jsonapi.io/random`);
     const outMsg = resp.data.content;
@@ -54,6 +72,16 @@ function specToggle(nonPrefixedDisplayName, isSpecTagged, isStTagged, message, a
   } else {
     message.member.setNickname(nonPrefixedDisplayName)
       .catch((err) => replyUnableToChangeNick(message, nonPrefixedDisplayName, err));
+  }
+}
+
+function newPlayerToggle(nonPrefixedDisplayName, isNewPlayerTagged, message) {
+  if (!isNewPlayerTagged) {
+    message.member.setNickname(message.member.displayName + ' [N]')
+      .catch((err) => replyUnableToChangeNick(message, message.member.displayName + ' [N]', err));
+  } else {
+    message.member.setNickname(message.member.displayName.slice(0, -4))
+      .catch((err) => replyUnableToChangeNick(message, message.member.displayName + ' :: without the trailing [N]', err));
   }
 }
 
@@ -77,16 +105,56 @@ function stToggle(nonPrefixedDisplayName, isStTagged, message, storytellerRole, 
   }
 }
 
-function newPlayerToggle(nonPrefixedDisplayName, isNewPlayerTagged, message) {
-  if (!isNewPlayerTagged) {
-    message.member.setNickname(message.member.displayName + ' [N]')
-      .catch((err) => replyUnableToChangeNick(message, message.member.displayName + ' [N]', err));
+function coStToggle(nonPrefixedDisplayName, isStTagged, isCoStTagged, message, activeStorytellerRole) {
+  if (!isCoStTagged) {
+    if (isStTagged) {
+      message.member.roles.remove(activeStorytellerRole).catch(console.error);
+    }
+    message.member.setNickname('(Co-ST) ' + nonPrefixedDisplayName)
+      .catch((err) => replyUnableToChangeNick(message, '(Co-ST) ' + nonPrefixedDisplayName, err));
   } else {
-    console.log(message.member.displayName.slice(0, -4));
-    message.member.setNickname(message.member.displayName.slice(0, -4))
-      .catch((err) => replyUnableToChangeNick(message, message.member.displayName + ' :: without the trailing [N]', err));
+    message.member.setNickname(nonPrefixedDisplayName)
+      .catch((err) => replyUnableToChangeNick(message, nonPrefixedDisplayName, err));
   }
 }
+
+function travellerToggle(nonPrefixedDisplayName, isStTagged, isTravellerTagged, message, activeStorytellerRole) {
+  if (!isTravellerTagged) {
+    if (isStTagged) {
+      message.member.roles.remove(activeStorytellerRole).catch(console.error);
+    }
+    message.member.setNickname('(T) ' + nonPrefixedDisplayName)
+      .catch((err) => replyUnableToChangeNick(message, '(T) ' + nonPrefixedDisplayName, err));
+  } else {
+    message.member.setNickname(nonPrefixedDisplayName)
+      .catch((err) => replyUnableToChangeNick(message, nonPrefixedDisplayName, err));
+  }
+}
+
+//TODO: this would still require st flagged handling.. potential scrap? or leave st requests separated and remove active-st role by default?
+////function togglePrefix(message) {
+////  const storytellerRole = message.guild.roles.cache.find(r => r.name === 'botc-storyteller');
+////  const activeStorytellerRole = message.guild.roles.cache.find(r => r.name === 'active-botc-storyteller');
+////  const {
+////    nonPrefixedDisplayName,
+////    prefix,
+////    suffix,
+////    isStRequest,
+////    isStTagged,
+////    isTaggedAsRequest,
+////  } = getNonPrefixedName(message.member.displayName);
+////
+////  if (!isTaggedAsRequest) {
+////    if (isStTagged) {
+////      message.member.roles.remove(activeStorytellerRole).catch(console.error);
+////    }
+////    message.member.setNickname(prefix + nonPrefixedDisplayName + suffix)
+////      .catch((err) => replyUnableToChangeNick(message, prefix + nonPrefixedDisplayName + suffix, err));
+////  } else {
+////    message.member.setNickname(nonPrefixedDisplayName)
+////      .catch((err) => replyUnableToChangeNick(message, nonPrefixedDisplayName, err));
+////  }
+////}
 
 async function wikiCharacterLinkRequest(message) {
   const wikiUrl = 'https://wiki.bloodontheclocktower.com/'
@@ -116,10 +184,34 @@ async function wikiCharacterLinkRequest(message) {
           });
 }
 
+async function remindMe(message) {
+  
+  //TODO: check that \w was actually the regular alphanumerical checkup
+  const remindMeRegex = /^!remindme ([0-9][0-9]{0,2}) ([\w][\w\s]{1,100})$/
+  const matchResult = message.content.match(remindMeRegex);
+  console.log(matchResult);
+  if (message.content.startsWith('!remindme ') && matchResult) {
+    const minutes = matchResult[1];
+    const reminderMessage = matchResult[2];
+    message.channel.send({content: "```" + message.member.displayName + " set a reminder in\n\
+        -- " + minutes + " minutes```"});
+    setTimeout(() => {
+      message.channel.send({content: "```REMINDER:\n\
+        -- " + reminderMessage + "```"});
+    }, minutes * 60 * 1000);
+  } else {
+    message.channel.send('Usage\n\
+    To send a reminder in 6 minutes:\n\
+    !remindme 6 My message here')
+  }
+}
+
 function getNonPrefixedName(displayName) {
   let formattedName = displayName;
   let isSpecTagged = false;
   let isStTagged = false;
+  let isCoStTagged = false;
+  let isTravellerTagged = false;
   let isNewPlayerTagged = false;
   if (displayName.startsWith('!')) {
     formattedName = displayName.substring(1);
@@ -127,11 +219,24 @@ function getNonPrefixedName(displayName) {
   } else if(displayName.startsWith('(ST) ')) {
     formattedName = displayName.substring(5);
     isStTagged = true;
+  } else if(displayName.startsWith('(Co-ST) ')) {
+    formattedName = displayName.substring(8);
+    isCoStTagged = true;
+  } else if(displayName.startsWith('(T) ')) {
+    formattedName = displayName.substring(4);
+    isTravellerTagged = true;
   }
   if(displayName.endsWith(' [N]')) {
     isNewPlayerTagged = true;
   }
-  return { nonPrefixedDisplayName: formattedName, isSpecTagged: isSpecTagged, isStTagged: isStTagged, isNewPlayerTagged: isNewPlayerTagged };
+  return {
+    nonPrefixedDisplayName: formattedName,
+    isSpecTagged: isSpecTagged,
+    isStTagged: isStTagged,
+    isCoStTagged: isCoStTagged,
+    isTravellerTagged: isTravellerTagged,
+    isNewPlayerTagged: isNewPlayerTagged
+  };
 }
 
 function replyUnableToChangeNick(message, intendedNick, err) {
