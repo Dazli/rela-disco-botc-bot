@@ -18,7 +18,7 @@ client.on('messageCreate', async (message) => {
   const wikiRoleRegex = '^!role ([^ ]*)$';
   const storytellerRole = message.guild.roles.cache.find(r => r.name === 'botc-storyteller');
   const activeStorytellerRole = message.guild.roles.cache.find(r => r.name === 'active-botc-storyteller');
-  const { nonPrefixedDisplayName, isSpecTagged, isStTagged } = getNonPrefixedName(message.member.displayName);
+  const { nonPrefixedDisplayName, isSpecTagged, isStTagged, isNewPlayerTagged } = getNonPrefixedName(message.member.displayName);
   
   if (message.content === '!dbotc help') {
     message.channel.send({content:
@@ -26,12 +26,15 @@ client.on('messageCreate', async (message) => {
     `!dbotc help` : this info block\n\
     `!role undertaker` : list with any character role, and a link to the wiki page will be presented if found\n\
     `*!` : toggle a "spectator" tag and remove active game role (an exclamation mark is placed in front of your name)\n\
+    `*new` : toggle on or off a "new player" tag at the end of your name: "playerName [N]"\n\
     `*st` : a user with the appropriate role may enable/disable the active-ST role and tag "(ST)"'
     });
   } else if (message.content === '*!') {
     specToggle(nonPrefixedDisplayName, isSpecTagged, isStTagged, message, activeStorytellerRole);
   } else if (message.content === '*st') {
     stToggle(nonPrefixedDisplayName, isStTagged, message, storytellerRole, activeStorytellerRole);
+  } else if (message.content === '*new') {
+    newPlayerToggle(nonPrefixedDisplayName, isNewPlayerTagged, message);
   } else if (message.content.startsWith('!role ')) {
     wikiCharacterLinkRequest(message);
   } else if (1==2) {
@@ -74,6 +77,17 @@ function stToggle(nonPrefixedDisplayName, isStTagged, message, storytellerRole, 
   }
 }
 
+function newPlayerToggle(nonPrefixedDisplayName, isNewPlayerTagged, message) {
+  if (!isNewPlayerTagged) {
+    message.member.setNickname(message.member.displayName + ' [N]')
+      .catch((err) => replyUnableToChangeNick(message, message.member.displayName + ' [N]', err));
+  } else {
+    console.log(message.member.displayName.slice(0, -4));
+    message.member.setNickname(message.member.displayName.slice(0, -4))
+      .catch((err) => replyUnableToChangeNick(message, message.member.displayName + ' :: without the trailing [N]', err));
+  }
+}
+
 async function wikiCharacterLinkRequest(message) {
   const wikiUrl = 'https://wiki.bloodontheclocktower.com/'
   const characterRoleName = message.content.substring(6);
@@ -106,6 +120,7 @@ function getNonPrefixedName(displayName) {
   let formattedName = displayName;
   let isSpecTagged = false;
   let isStTagged = false;
+  let isNewPlayerTagged = false;
   if (displayName.startsWith('!')) {
     formattedName = displayName.substring(1);
     isSpecTagged = true;
@@ -113,7 +128,10 @@ function getNonPrefixedName(displayName) {
     formattedName = displayName.substring(5);
     isStTagged = true;
   }
-  return { nonPrefixedDisplayName: formattedName, isSpecTagged: isSpecTagged, isStTagged: isStTagged };
+  if(displayName.endsWith(' [N]')) {
+    isNewPlayerTagged = true;
+  }
+  return { nonPrefixedDisplayName: formattedName, isSpecTagged: isSpecTagged, isStTagged: isStTagged, isNewPlayerTagged: isNewPlayerTagged };
 }
 
 function replyUnableToChangeNick(message, intendedNick, err) {
