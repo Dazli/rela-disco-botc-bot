@@ -12,7 +12,7 @@ const client = new Client({ intents:
 
 client.on('ready', () => {
   console.log('bot is ready');
-})
+});
 
 client.on('messageCreate', async (message) => {
   const storytellerRole = message.guild.roles.cache.find(r => r.name === 'botc-storyteller');
@@ -59,12 +59,8 @@ client.on('messageCreate', async (message) => {
     wikiCharacterLinkRequest(message);
   } else if (message.content.startsWith('!remindme')) {
     remindMe(message);
-  } else if (1==2) {
-    let resp = await axios.get(`https://api.jsonapi.io/random`);
-    const outMsg = resp.data.content;
-    message.reply({content:outMsg});
   }
-})
+});
 
 function specToggle(nonPrefixedDisplayName, isSpecTagged, isStTagged, message, activeStorytellerRole) {
   if (!isSpecTagged) {
