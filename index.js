@@ -23,7 +23,8 @@ client.on('messageCreate', async (message) => {
     isStTagged,
     isCoStTagged,
     isTravellerTagged,
-    isNewPlayerTagged
+    isNewPlayerTagged,
+    isBrbTagged
   } = getNonPrefixedName(message.member.displayName);
   
   if (message.content === '!dbotc help') {
@@ -31,23 +32,26 @@ client.on('messageCreate', async (message) => {
     'commands:\n\
     `!dbotc help` : this info block\n\
     `*!` : toggle a "spectator" tag and remove active game role (an exclamation mark is placed in front of your name)\n\
-    `*new` : toggle on or off a "new player" tag at the end of your name: "playerName [N]"\n\
     `*st` : a user with the appropriate role may enable/disable the active-ST role and tag "(ST)"\n\
     `*cost` : toggle on or off a "co-storyteller" tag prefixing your nickname "(Co-ST)", this will not give you active-ST capabilities\n\
-    `*t` : toggle on or off a "traveler" tag prefixing your nickname "(T)"\n\
+    `*t` : toggle on or off a "traveller" tag prefixing your nickname "(T)"\n\
+    `*new` : toggle on or off a "new player" tag at the end of your name: "playerName [N]"\n\
+    `*brb` : toggle on or off a "brb" tag at the end of your name: "playerName [BRB]"\n\
     `!role undertaker` : list with any character role, and a link to the wiki page will be presented if found\n\
     `!remindme` : set a timer in minutes with a message.. example for 6min timer stating "nominations": !remindme 6 nominations'
     });
   } else if (message.content === '*!') {
     specToggle(nonPrefixedDisplayName, isSpecTagged, isStTagged, message, activeStorytellerRole);
-  } else if (message.content === '*new') {
-    newPlayerToggle(nonPrefixedDisplayName, isNewPlayerTagged, message);
   } else if (message.content === '*st') {
     stToggle(nonPrefixedDisplayName, isStTagged, message, storytellerRole, activeStorytellerRole);
   } else if (message.content === '*cost') {
     coStToggle(nonPrefixedDisplayName, isStTagged, isCoStTagged, message, activeStorytellerRole);
   } else if (message.content === '*t') {
     travellerToggle(nonPrefixedDisplayName, isStTagged, isTravellerTagged, message, activeStorytellerRole);
+  } else if (message.content === '*new') {
+    newPlayerToggle(isNewPlayerTagged, message);
+  } else if (message.content === '*brb') {
+    brbToggle(isBrbTagged, message);
 //  } else if (message.content === '*TODO_ANYTHING') {
 //    togglePrefix(message);
   } else if (message.content.startsWith('!role')) {
@@ -75,16 +79,6 @@ function specToggle(nonPrefixedDisplayName, isSpecTagged, isStTagged, message, a
   }
 }
 
-function newPlayerToggle(nonPrefixedDisplayName, isNewPlayerTagged, message) {
-  if (!isNewPlayerTagged) {
-    message.member.setNickname(message.member.displayName + ' [N]')
-      .catch((err) => replyUnableToChangeNick(message, message.member.displayName + ' [N]', err));
-  } else {
-    message.member.setNickname(message.member.displayName.slice(0, -4))
-      .catch((err) => replyUnableToChangeNick(message, message.member.displayName + ' :: without the trailing [N]', err));
-  }
-}
-
 function stToggle(nonPrefixedDisplayName, isStTagged, message, storytellerRole, activeStorytellerRole) {
   if (!message.member.roles.cache.has(activeStorytellerRole.id)) {
     if (message.member.roles.cache.has(storytellerRole.id)) {
@@ -94,7 +88,7 @@ function stToggle(nonPrefixedDisplayName, isStTagged, message, storytellerRole, 
           .catch((err) => replyUnableToChangeNick(message, '(ST) ' + nonPrefixedDisplayName, err));
       }
     } else {
-      message.channel.send({content: '`you lack permission to claim the active storyteller role`'});
+      message.channel.send({ephemeral: true, content: '`you lack permission to claim the active storyteller role`'});
     }
   } else {
     message.member.roles.remove(activeStorytellerRole).catch(console.error);
@@ -128,6 +122,26 @@ function travellerToggle(nonPrefixedDisplayName, isStTagged, isTravellerTagged, 
   } else {
     message.member.setNickname(nonPrefixedDisplayName)
       .catch((err) => replyUnableToChangeNick(message, nonPrefixedDisplayName, err));
+  }
+}
+
+function newPlayerToggle(isNewPlayerTagged, message) {
+  if (!isNewPlayerTagged) {
+    message.member.setNickname(message.member.displayName + ' [N]')
+      .catch((err) => replyUnableToChangeNick(message, message.member.displayName + ' [N]', err));
+  } else {
+    message.member.setNickname(message.member.displayName.slice(0, -4))
+      .catch((err) => replyUnableToChangeNick(message, message.member.displayName + ' :: without the trailing [N]', err));
+  }
+}
+
+function brbToggle(isBrbTagged, message) {
+  if (!isBrbTagged) {
+    message.member.setNickname(message.member.displayName + ' [BRB]')
+      .catch((err) => replyUnableToChangeNick(message, message.member.displayName + ' [BRB]', err));
+  } else {
+    message.member.setNickname(message.member.displayName.slice(0, -6))
+      .catch((err) => replyUnableToChangeNick(message, message.member.displayName + ' :: without the trailing [BRB]', err));
   }
 }
 
@@ -200,9 +214,9 @@ async function remindMe(message) {
         -- " + reminderMessage + "```"});
     }, minutes * 60 * 1000);
   } else {
-    message.channel.send('Usage\n\
+    message.channel.send({content: 'Usage\n\
     To send a reminder in 6 minutes:\n\
-    !remindme 6 My message here')
+    !remindme 6 My message here'});
   }
 }
 
@@ -213,6 +227,7 @@ function getNonPrefixedName(displayName) {
   let isCoStTagged = false;
   let isTravellerTagged = false;
   let isNewPlayerTagged = false;
+  let isBrbTagged = false;
   if (displayName.startsWith('!')) {
     formattedName = displayName.substring(1);
     isSpecTagged = true;
@@ -228,6 +243,8 @@ function getNonPrefixedName(displayName) {
   }
   if(displayName.endsWith(' [N]')) {
     isNewPlayerTagged = true;
+  } else if(displayName.endsWith(' [BRB]')) {
+    isBrbTagged = true;
   }
   return {
     nonPrefixedDisplayName: formattedName,
@@ -235,13 +252,17 @@ function getNonPrefixedName(displayName) {
     isStTagged: isStTagged,
     isCoStTagged: isCoStTagged,
     isTravellerTagged: isTravellerTagged,
-    isNewPlayerTagged: isNewPlayerTagged
+    isNewPlayerTagged: isNewPlayerTagged,
+    isBrbTagged: isBrbTagged
   };
 }
 
 function replyUnableToChangeNick(message, intendedNick, err) {
-  message.reply({content: 'couldn\'t change your nick, type this to change it yourself (only copypaste your name including any prefix):\n\
-    `/nick ' + intendedNick + '`'});
+  message.reply({
+    ephemeral: true,
+    content: 'couldn\'t change your nick, type this to change it yourself (only copypaste your name including any prefix):\n\
+      `/nick ' + intendedNick + '`'
+  });
   console.error(err);
 }
 
