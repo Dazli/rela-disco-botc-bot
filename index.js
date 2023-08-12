@@ -84,7 +84,8 @@ function stToggle(nonPrefixedDisplayName, isStTagged, message, storytellerRole, 
           .catch((err) => replyUnableToChangeNick(message, '(ST) ' + nonPrefixedDisplayName, err));
       }
     } else {
-      message.channel.send({ephemeral: true, content: '`you lack permission to claim the active storyteller role`'});
+      message.channel.send({/*ephemeral: true, */content: '`you lack permission to claim the active storyteller role`'});
+      // ephemeral responses only function with slashcommands, consider looking into this
     }
   } else {
     message.member.roles.remove(activeStorytellerRole).catch(console.error);
@@ -169,9 +170,7 @@ function brbToggle(isBrbTagged, message) {
 async function wikiCharacterLinkRequest(message) {
   const wikiUrl = 'https://wiki.bloodontheclocktower.com/'
   const characterRoleName = message.content.substring(6);
-  // ALSO CHECK IF CHAR ROLE NAME HAS "-", and re-join appropriately..
   const formattedCharacterRoleName = capitalizeRoleNameWithUnderscores(characterRoleName);
-//    console.log(formattedCharacterRoleName);
   let resp = await axios
           .head(wikiUrl + formattedCharacterRoleName)
           .then(resp => {
@@ -255,9 +254,10 @@ function getNonPrefixedName(displayName) {
 
 function replyUnableToChangeNick(message, intendedNick, err) {
   message.reply({
-    ephemeral: true,
     content: 'couldn\'t change your nick, type this to change it yourself (only copypaste your name including any prefix):\n\
-      `/nick ' + intendedNick + '`'
+      `/nick ' + intendedNick + '`',
+//    ephemeral: true
+// ephemeral responses only function with slashcommands, consider looking into this
   });
   console.error(err);
 }
