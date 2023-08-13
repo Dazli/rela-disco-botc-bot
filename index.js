@@ -1,7 +1,8 @@
 require('dotenv').config();
 
 const axios = require('axios');
-const { Client, GatewayIntentBits } = require('discord.js');
+const { Client, EmbedBuilder, GatewayIntentBits } = require('discord.js');
+const roles = require('./roles.json');
 const client = new Client({ intents:
           [
             GatewayIntentBits.Guilds,
@@ -22,7 +23,7 @@ client.on('messageCreate', async (message) => {
     isSpecTagged,
     isStTagged,
     isCoStTagged,
-    isTravellerTagged,
+    isTravelerTagged,
     isNewPlayerTagged,
     isBrbTagged
   } = getNonPrefixedName(message.member.displayName);
@@ -34,7 +35,7 @@ client.on('messageCreate', async (message) => {
     `*!` : toggle a "spectator" tag and remove active game role (an exclamation mark is placed in front of your name)\n\
     `*st` : a user with the appropriate role may enable/disable the active-ST role and tag "(ST)"\n\
     `*cost` : toggle on or off a "co-storyteller" tag prefixing your nickname "(Co-ST)", this will not give you active-ST capabilities\n\
-    `*t` : toggle on or off a "traveller" tag prefixing your nickname "(T)"\n\
+    `*t` : toggle on or off a "traveler" tag prefixing your nickname "(T)"\n\
     `*new` : toggle on or off a "new player" tag at the end of your name: "playerName [N]"\n\
     `*brb` : toggle on or off a "brb" tag at the end of your name: "playerName [BRB]"\n\
     `!role undertaker` : list with any character role, and a link to the wiki page will be presented if found\n\
@@ -47,7 +48,7 @@ client.on('messageCreate', async (message) => {
   } else if (message.content === '*cost') {
     coStToggle(nonPrefixedDisplayName, isStTagged, isCoStTagged, message, activeStorytellerRole);
   } else if (message.content === '*t') {
-    travellerToggle(nonPrefixedDisplayName, isStTagged, isTravellerTagged, message, activeStorytellerRole);
+    travelerToggle(nonPrefixedDisplayName, isStTagged, isTravelerTagged, message, activeStorytellerRole);
   } else if (message.content === '*new') {
     newPlayerToggle(isNewPlayerTagged, message);
   } else if (message.content === '*brb') {
@@ -109,8 +110,8 @@ function coStToggle(nonPrefixedDisplayName, isStTagged, isCoStTagged, message, a
   }
 }
 
-function travellerToggle(nonPrefixedDisplayName, isStTagged, isTravellerTagged, message, activeStorytellerRole) {
-  if (!isTravellerTagged) {
+function travelerToggle(nonPrefixedDisplayName, isStTagged, isTravelerTagged, message, activeStorytellerRole) {
+  if (!isTravelerTagged) {
     if (isStTagged) {
       message.member.roles.remove(activeStorytellerRole).catch(console.error);
     }
@@ -168,29 +169,75 @@ function brbToggle(isBrbTagged, message) {
 ////}
 
 async function wikiCharacterLinkRequest(message) {
-  const wikiUrl = 'https://wiki.bloodontheclocktower.com/'
+  const wikiUrl = 'https://wiki.bloodontheclocktower.com/';
   const characterRoleName = message.content.substring(6);
   const formattedCharacterRoleName = capitalizeRoleNameWithUnderscores(characterRoleName);
+  const thumbnailRoleName = lowercaseNoDelimiterRoleName(characterRoleName);
+  const cleanCharacterRoleName = formattedCharacterRoleName.split('_').join(' ');
   let resp = await axios
           .head(wikiUrl + formattedCharacterRoleName)
           .then(resp => {
             if (resp.status && resp.status === 200) {
-              message.channel.send({content: wikiUrl + formattedCharacterRoleName});
+              const requestedRole = roles.filter(obj => {
+                return obj.name === cleanCharacterRoleName;
+              })[0];
+              const wikiEmbed = new EmbedBuilder()
+                      .setTitle(cleanCharacterRoleName + ' (' + requestedRole.team[0].toUpperCase() + requestedRole.team.substring(1) + ')')
+                      .setColor(characterTeamColor(requestedRole.team))
+                      .setURL(wikiUrl + formattedCharacterRoleName)
+//                      .setAuthor() // N/A
+                      .setDescription(requestedRole.ability)
+                      // TODO: consider swapping the images to utilize a manual list of official wiki images
+//                      .setThumbnail('https://wiki.bloodontheclocktower.com/images/c/c3/Icon_' + thumbnailRoleName + '.png');
+                      .setThumbnail('https://raw.githubusercontent.com/bra1n/townsquare/develop/src/assets/icons/' + thumbnailRoleName + '.png');
+
+              message.channel.send({embeds: [wikiEmbed]});
             } else {
               message.channel.send({content: '`query success - character role not found`'});
             }
           })
           .catch(error =>  {
-            if  (error.response.status === 404) {
-              message.channel.send({content: '`query failure - character role not found`'});
-            } else if (error.response.status === 503) {
-              message.channel.send({content: '`503 - wiki unavailable`'});
-            } else if ([400,500,501,502,504].includes(error.response.status)) {
-              message.channel.send({content: '`unexpected error, please contact maintainer`'});
-            } else {
-              message.channel.send({content: '`unexpected error, please contact maintainer`'});
+            if (error.response) {
+              if  (error.response.status === 404) {
+                message.channel.send({content: '`query failure - character role not found`'});
+              } else if (error.response.status === 503) {
+                message.channel.send({content: '`503 - wiki unavailable`'});
+              } else if ([400,500,501,502,504].includes(error.response.status)) {
+                message.channel.send({content: '`unexpected error, please contact maintainer`'});
+              } else {
+                message.channel.send({content: '`unexpected error, please contact maintainer`'});
+              }
             }
           });
+}
+
+function characterTeamColor(teamValue) {
+  let blockQuoteColor = '#333';
+//  let blockQuoteColor = '#333';
+  switch(teamValue) {
+    case 'townsfolk':
+      blockQuoteColor = '#0099FF';
+      break;
+    case 'outsider':
+      blockQuoteColor = '#009999';
+      break;
+    case 'minion':
+      blockQuoteColor = '#EF6600';
+      break;
+    case 'demon':
+      blockQuoteColor = '#EF3300';
+      break;
+    case 'traveler':
+      blockQuoteColor = '#9900CC';
+      break;
+    case 'fabled':
+      blockQuoteColor = '#FFD700';
+      break;
+    default:
+      blockQuoteColor = '#999';
+      break;
+  }
+  return blockQuoteColor;
 }
 
 async function remindMe(message) {
@@ -202,10 +249,10 @@ async function remindMe(message) {
   if (message.content.startsWith('!remindme ') && matchResult) {
     const minutes = matchResult[1];
     const reminderMessage = matchResult[2];
-    message.channel.send({content: "```" + message.member.displayName + " set a reminder in\n\
-        -- " + minutes + " minutes```"});
+    message.channel.send({content: "> ```" + message.member.displayName + " set a reminder in\n\
+>        -- " + minutes + " minutes```"});
     setTimeout(() => {
-      message.channel.send({content: "```REMINDER:\n\
+      message.channel.send({content: "> ```REMINDER:\n\
         -- " + reminderMessage + "```"});
     }, minutes * 60 * 1000);
   } else {
@@ -220,7 +267,7 @@ function getNonPrefixedName(displayName) {
   let isSpecTagged = false;
   let isStTagged = false;
   let isCoStTagged = false;
-  let isTravellerTagged = false;
+  let isTravelerTagged = false;
   let isNewPlayerTagged = false;
   let isBrbTagged = false;
   if (displayName.startsWith('!')) {
@@ -234,7 +281,7 @@ function getNonPrefixedName(displayName) {
     isCoStTagged = true;
   } else if(displayName.startsWith('(T) ')) {
     formattedName = displayName.substring(4);
-    isTravellerTagged = true;
+    isTravelerTagged = true;
   }
   if(displayName.endsWith(' [N]')) {
     isNewPlayerTagged = true;
@@ -246,7 +293,7 @@ function getNonPrefixedName(displayName) {
     isSpecTagged: isSpecTagged,
     isStTagged: isStTagged,
     isCoStTagged: isCoStTagged,
-    isTravellerTagged: isTravellerTagged,
+    isTravelerTagged: isTravelerTagged,
     isNewPlayerTagged: isNewPlayerTagged,
     isBrbTagged: isBrbTagged
   };
@@ -265,13 +312,17 @@ function replyUnableToChangeNick(message, intendedNick, err) {
 function capitalizeRoleNameWithUnderscores(phrase, dash=false) {
   const splitDelimiter = dash ? '-' : ' ';
   const joinDelimiter = dash ? '-' : '_';
-  const words = phrase.toLowerCase().split(splitDelimiter);
+  const words = phrase.toLowerCase().replace(/[^A-Za-z\'\- ]/g, '').split(splitDelimiter);
   return words.map((word) => {
     if (!dash) {
       word = capitalizeRoleNameWithUnderscores(word, true);
     }
-    return word[0].toUpperCase() + word.substring(1);
+    return ['of'].includes(word) ? word : word[0].toUpperCase() + word.substring(1);
   }).join(joinDelimiter);
+}
+
+function lowercaseNoDelimiterRoleName(phrase) {
+  return phrase.toLowerCase().replace(/[^a-z]/g, '');
 }
 
 client.login(process.env.DISCORD_BOT_ID);
