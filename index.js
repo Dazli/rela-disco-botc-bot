@@ -252,8 +252,8 @@ async function remindMe(message) {
     message.channel.send({content: "> ```" + message.member.displayName + " set a reminder in\n\
 >        -- " + minutes + " minutes```"});
     setTimeout(() => {
-      message.channel.send({content: "> ```REMINDER:\n\
-        -- " + reminderMessage + "```"});
+      message.reply({content: "> ```REMINDER:\n\
+>        -- " + reminderMessage + "```"});
     }, minutes * 60 * 1000);
   } else {
     message.channel.send({content: 'Usage\n\
