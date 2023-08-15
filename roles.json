@@ -2528,31 +2528,37 @@
         {
                 "id": "knight",
                 "name": "Knight",
+                "team": "townsfolk",
                 "ability": "You start knowing 2 players that are not the Demon"
         },
         {
                 "id": "steward",
                 "name": "Steward",
+                "team": "townsfolk",
                 "ability": "You start knowing 1 good player"
         },
 	{
-		"id":"peasant",
-		"name": "Peasant",
-		"ability": "🤫"
+                "id":"peasant",
+                "name": "Peasant",
+                "team": "townsfolk",
+                "ability": "🤫"
 	},
 	{
-		"id": "highpriestess",
-		"name": "High Priestess",
-		"ability": "Each night, learn which player the Storyteller believes you should talk to most"
+                "id": "highpriestess",
+                "name": "High Priestess",
+                "team": "townsfolk",
+                "ability": "Each night, learn which player the Storyteller believes you should talk to most"
 	},
 	{
-		"id": "harpy",
-		"name": "Harpy",
-		"ability": "Each night, choose 2 players: tomorrow, the 1st player is mad the 2nd is evil, or both might die."
+                "id": "harpy",
+                "name": "Harpy",
+                "team": "minion",
+                "ability": "Each night, choose 2 players: tomorrow, the 1st player is mad the 2nd is evil, or both might die."
 	},
         {
                 "id": "ferryman",
                 "name": "Ferryman",
+                "team": "fabled",
                 "ability": "On the final day, all dead players regain their vote token."
         }
 ]
