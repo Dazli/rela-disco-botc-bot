@@ -45,15 +45,15 @@ client.on('messageCreate', async (message) => {
     `!remindme` : set a timer in minutes with a message.. example for 6min timer stating "nominations": !remindme 6 nominations'
     });
   } else if (message.content === '*!') {
-    specToggle(nonPrefixedDisplayName, isSpecTagged, isStTagged, message, activePlayerRole, activeStorytellerRole);
+    specToggle(nonPrefixedDisplayName, isSpecTagged, message, activePlayerRole, activeStorytellerRole);
   } else if (message.content === '*join') {
     activatePlayer(nonPrefixedDisplayName, message, activePlayerRole, activeStorytellerRole);
   } else if (message.content === '*st') {
     stToggle(nonPrefixedDisplayName, isStTagged, message, activePlayerRole, storytellerRole, activeStorytellerRole);
   } else if (message.content === '*cost') {
-    coStToggle(nonPrefixedDisplayName, isStTagged, isCoStTagged, message, activePlayerRole, activeStorytellerRole);
+    coStToggle(nonPrefixedDisplayName, isCoStTagged, message, activePlayerRole, activeStorytellerRole);
   } else if (message.content === '*t') {
-    travelerToggle(nonPrefixedDisplayName, isStTagged, isTravelerTagged, message, activeStorytellerRole);
+    travelerToggle(nonPrefixedDisplayName, isTravelerTagged, message, activeStorytellerRole);
   } else if (message.content === '*new') {
     newPlayerToggle(isNewPlayerTagged, message);
   } else if (message.content === '*brb') {
@@ -68,7 +68,7 @@ client.on('messageCreate', async (message) => {
   }
 });
 
-function specToggle(nonPrefixedDisplayName, isSpecTagged, isStTagged, message, activePlayerRole, activeStorytellerRole) {
+function specToggle(nonPrefixedDisplayName, isSpecTagged, message, activePlayerRole, activeStorytellerRole) {
   if (!isSpecTagged) {
     message.member.roles.remove(activeStorytellerRole).catch();
     message.member.roles.remove(activePlayerRole).catch();
@@ -112,7 +112,7 @@ function stToggle(nonPrefixedDisplayName, isStTagged, message, activePlayerRole,
   setTimeout(() => message.delete().catch(), 3000);
 }
 
-function coStToggle(nonPrefixedDisplayName, isStTagged, isCoStTagged, message, activePlayerRole, activeStorytellerRole) {
+function coStToggle(nonPrefixedDisplayName, isCoStTagged, message, activePlayerRole, activeStorytellerRole) {
   if (!isCoStTagged) {
     message.member.roles.remove(activeStorytellerRole).catch();
     message.member.roles.remove(activePlayerRole).catch();
@@ -125,7 +125,7 @@ function coStToggle(nonPrefixedDisplayName, isStTagged, isCoStTagged, message, a
   setTimeout(() => message.delete().catch(), 3000);
 }
 
-function travelerToggle(nonPrefixedDisplayName, isStTagged, isTravelerTagged, message, activeStorytellerRole) {
+function travelerToggle(nonPrefixedDisplayName, isTravelerTagged, message, activeStorytellerRole) {
   if (!isTravelerTagged) {
     message.member.roles.remove(activeStorytellerRole).catch();
     message.member.setNickname('(T) ' + nonPrefixedDisplayName)
