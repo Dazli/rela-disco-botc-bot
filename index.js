@@ -17,6 +17,7 @@ client.on('ready', () => {
 });
 
 client.on('messageCreate', async (message) => {
+  const activePlayerRole = message.guild.roles.cache.find(r => r.name === 'botc-current-game');
   const storytellerRole = message.guild.roles.cache.find(r => r.name === 'botc-storyteller');
   const activeStorytellerRole = message.guild.roles.cache.find(r => r.name === 'active-botc-storyteller');
   const {
@@ -33,7 +34,8 @@ client.on('messageCreate', async (message) => {
     message.channel.send({content:
     'commands:\n\
     `!dbotc help` : this info block\n\
-    `*!` : toggle a "spectator" tag and remove active game role (an exclamation mark is placed in front of your name)\n\
+    `*!` : toggle a "spectator" tag and remove active game roles (an exclamation mark is placed in front of your name)\n\
+    `*join` : add an active player role to yourself, removing any prefix tags and any unrelevant active-game roles\n\
     `*st` : a user with the appropriate role may enable/disable the active-ST role and tag "(ST)"\n\
     `*cost` : toggle on or off a "co-storyteller" tag prefixing your nickname "(Co-ST)", this will not give you active-ST capabilities\n\
     `*t` : toggle on or off a "traveler" tag prefixing your nickname "(T)"\n\
@@ -43,11 +45,13 @@ client.on('messageCreate', async (message) => {
     `!remindme` : set a timer in minutes with a message.. example for 6min timer stating "nominations": !remindme 6 nominations'
     });
   } else if (message.content === '*!') {
-    specToggle(nonPrefixedDisplayName, isSpecTagged, isStTagged, message, activeStorytellerRole);
+    specToggle(nonPrefixedDisplayName, isSpecTagged, isStTagged, message, activePlayerRole, activeStorytellerRole);
+  } else if (message.content === '*join') {
+    activatePlayer(nonPrefixedDisplayName, message, activePlayerRole, activeStorytellerRole);
   } else if (message.content === '*st') {
-    stToggle(nonPrefixedDisplayName, isStTagged, message, storytellerRole, activeStorytellerRole);
+    stToggle(nonPrefixedDisplayName, isStTagged, message, activePlayerRole, storytellerRole, activeStorytellerRole);
   } else if (message.content === '*cost') {
-    coStToggle(nonPrefixedDisplayName, isStTagged, isCoStTagged, message, activeStorytellerRole);
+    coStToggle(nonPrefixedDisplayName, isStTagged, isCoStTagged, message, activePlayerRole, activeStorytellerRole);
   } else if (message.content === '*t') {
     travelerToggle(nonPrefixedDisplayName, isStTagged, isTravelerTagged, message, activeStorytellerRole);
   } else if (message.content === '*new') {
@@ -64,11 +68,10 @@ client.on('messageCreate', async (message) => {
   }
 });
 
-function specToggle(nonPrefixedDisplayName, isSpecTagged, isStTagged, message, activeStorytellerRole) {
+function specToggle(nonPrefixedDisplayName, isSpecTagged, isStTagged, message, activePlayerRole, activeStorytellerRole) {
   if (!isSpecTagged) {
-    if (isStTagged) {
-      message.member.roles.remove(activeStorytellerRole).catch(console.error);
-    }
+    message.member.roles.remove(activeStorytellerRole).catch();
+    message.member.roles.remove(activePlayerRole).catch();
     message.member.setNickname('!' + nonPrefixedDisplayName)
       .catch((err) => replyUnableToChangeNick(message, '!' + nonPrefixedDisplayName, err));
   } else {
@@ -78,9 +81,18 @@ function specToggle(nonPrefixedDisplayName, isSpecTagged, isStTagged, message, a
   setTimeout(() => message.delete().catch(), 3000);
 }
 
-function stToggle(nonPrefixedDisplayName, isStTagged, message, storytellerRole, activeStorytellerRole) {
+function activatePlayer(nonPrefixedDisplayName, message, activePlayerRole, activeStorytellerRole) {
+  message.member.roles.remove(activeStorytellerRole).catch();
+  message.member.roles.add(activePlayerRole).catch();
+  message.member.setNickname(nonPrefixedDisplayName)
+    .catch((err) => replyUnableToChangeNick(message, nonPrefixedDisplayName, err));
+  setTimeout(() => message.delete().catch(), 3000);
+}
+
+function stToggle(nonPrefixedDisplayName, isStTagged, message, activePlayerRole, storytellerRole, activeStorytellerRole) {
   if (!message.member.roles.cache.has(activeStorytellerRole.id)) {
     if (message.member.roles.cache.has(storytellerRole.id)) {
+      message.member.roles.remove(activePlayerRole).catch();
       message.member.roles.add(activeStorytellerRole).catch();
       if (!isStTagged) {
         message.member.setNickname('(ST) ' + nonPrefixedDisplayName)
@@ -100,11 +112,10 @@ function stToggle(nonPrefixedDisplayName, isStTagged, message, storytellerRole, 
   setTimeout(() => message.delete().catch(), 3000);
 }
 
-function coStToggle(nonPrefixedDisplayName, isStTagged, isCoStTagged, message, activeStorytellerRole) {
+function coStToggle(nonPrefixedDisplayName, isStTagged, isCoStTagged, message, activePlayerRole, activeStorytellerRole) {
   if (!isCoStTagged) {
-    if (isStTagged) {
-      message.member.roles.remove(activeStorytellerRole).catch();
-    }
+    message.member.roles.remove(activeStorytellerRole).catch();
+    message.member.roles.remove(activePlayerRole).catch();
     message.member.setNickname('(Co-ST) ' + nonPrefixedDisplayName)
       .catch((err) => replyUnableToChangeNick(message, '(Co-ST) ' + nonPrefixedDisplayName, err));
   } else {
@@ -116,9 +127,7 @@ function coStToggle(nonPrefixedDisplayName, isStTagged, isCoStTagged, message, a
 
 function travelerToggle(nonPrefixedDisplayName, isStTagged, isTravelerTagged, message, activeStorytellerRole) {
   if (!isTravelerTagged) {
-    if (isStTagged) {
-      message.member.roles.remove(activeStorytellerRole).catch();
-    }
+    message.member.roles.remove(activeStorytellerRole).catch();
     message.member.setNickname('(T) ' + nonPrefixedDisplayName)
       .catch((err) => replyUnableToChangeNick(message, '(T) ' + nonPrefixedDisplayName, err));
   } else {
