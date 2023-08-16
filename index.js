@@ -75,11 +75,7 @@ function specToggle(nonPrefixedDisplayName, isSpecTagged, isStTagged, message, a
     message.member.setNickname(nonPrefixedDisplayName)
       .catch((err) => replyUnableToChangeNick(message, nonPrefixedDisplayName, err));
   }
-  try {
-    message.delete({timeout: 5000});
-  } catch(err) {
-    console.error(err);
-  }
+  message.delete({timeout: 5000}).catch(console.error);
 }
 
 function stToggle(nonPrefixedDisplayName, isStTagged, message, storytellerRole, activeStorytellerRole) {
@@ -101,6 +97,7 @@ function stToggle(nonPrefixedDisplayName, isStTagged, message, storytellerRole, 
         .catch((err) => replyUnableToChangeNick(message, nonPrefixedDisplayName, err));
     }
   }
+  message.delete({timeout: 5000}).catch(console.error);
 }
 
 function coStToggle(nonPrefixedDisplayName, isStTagged, isCoStTagged, message, activeStorytellerRole) {
@@ -114,6 +111,7 @@ function coStToggle(nonPrefixedDisplayName, isStTagged, isCoStTagged, message, a
     message.member.setNickname(nonPrefixedDisplayName)
       .catch((err) => replyUnableToChangeNick(message, nonPrefixedDisplayName, err));
   }
+  message.delete({timeout: 5000}).catch(console.error);
 }
 
 function travelerToggle(nonPrefixedDisplayName, isStTagged, isTravelerTagged, message, activeStorytellerRole) {
@@ -127,6 +125,7 @@ function travelerToggle(nonPrefixedDisplayName, isStTagged, isTravelerTagged, me
     message.member.setNickname(nonPrefixedDisplayName)
       .catch((err) => replyUnableToChangeNick(message, nonPrefixedDisplayName, err));
   }
+  message.delete({timeout: 5000}).catch(console.error);
 }
 
 function newPlayerToggle(isNewPlayerTagged, message) {
@@ -137,6 +136,7 @@ function newPlayerToggle(isNewPlayerTagged, message) {
     message.member.setNickname(message.member.displayName.slice(0, -4))
       .catch((err) => replyUnableToChangeNick(message, message.member.displayName + ' :: without the trailing [N]', err));
   }
+  message.delete({timeout: 5000}).catch(console.error);
 }
 
 function brbToggle(isBrbTagged, message) {
@@ -147,6 +147,7 @@ function brbToggle(isBrbTagged, message) {
     message.member.setNickname(message.member.displayName.slice(0, -6))
       .catch((err) => replyUnableToChangeNick(message, message.member.displayName + ' :: without the trailing [BRB]', err));
   }
+  message.delete({timeout: 5000}).catch(console.error);
 }
 
 //TODO: this would still require st flagged handling.. potential scrap? or leave st requests separated and remove active-st role by default?
