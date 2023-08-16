@@ -1,0 +1,14 @@
+[Unit]
+Description=Rela discord BotC BOT
+
+[Service]
+ExecStart=/discordbot/rela-disco-botc-bot/index.js
+Restart=always
+User=nobody
+Group=nobody
+Environment=PATH=/usr/bin:/usr/local/bin
+Environment=NODE_ENV=production
+WorkingDirectory=/discordbot/rela-disco-botc-bot
+
+[Install]
+WantedBy=multi-user.target
