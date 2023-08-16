@@ -78,7 +78,7 @@ function specToggle(nonPrefixedDisplayName, isSpecTagged, message, activePlayerR
     message.member.setNickname(nonPrefixedDisplayName)
       .catch((err) => replyUnableToChangeNick(message, nonPrefixedDisplayName, err));
   }
-  setTimeout(() => message.delete().catch(), 3000);
+  setTimeout(() => message.delete().catch((err) => console.error('Could not delete message by: ', message.member.displayName)), 3000);
 }
 
 function activatePlayer(nonPrefixedDisplayName, message, activePlayerRole, activeStorytellerRole) {
@@ -322,7 +322,7 @@ function replyUnableToChangeNick(message, intendedNick, err) {
 //    ephemeral: true
 // ephemeral responses only function with slashcommands, consider looking into this
   });
-  console.error(err);
+  console.error('Intended nickname: ', intendedNick);
 }
 
 function capitalizeRoleNameWithUnderscores(phrase, dash=false) {
