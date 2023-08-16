@@ -75,13 +75,13 @@ function specToggle(nonPrefixedDisplayName, isSpecTagged, isStTagged, message, a
     message.member.setNickname(nonPrefixedDisplayName)
       .catch((err) => replyUnableToChangeNick(message, nonPrefixedDisplayName, err));
   }
-  message.delete({timeout: 5000}).catch(console.error);
+  message.delete({timeout: 5000}).catch();
 }
 
 function stToggle(nonPrefixedDisplayName, isStTagged, message, storytellerRole, activeStorytellerRole) {
   if (!message.member.roles.cache.has(activeStorytellerRole.id)) {
     if (message.member.roles.cache.has(storytellerRole.id)) {
-      message.member.roles.add(activeStorytellerRole).catch(console.error);
+      message.member.roles.add(activeStorytellerRole).catch();
       if (!isStTagged) {
         message.member.setNickname('(ST) ' + nonPrefixedDisplayName)
           .catch((err) => replyUnableToChangeNick(message, '(ST) ' + nonPrefixedDisplayName, err));
@@ -91,19 +91,19 @@ function stToggle(nonPrefixedDisplayName, isStTagged, message, storytellerRole, 
       // ephemeral responses only function with slashcommands, consider looking into this
     }
   } else {
-    message.member.roles.remove(activeStorytellerRole).catch(console.error);
+    message.member.roles.remove(activeStorytellerRole).catch();
     if (isStTagged) {
       message.member.setNickname(nonPrefixedDisplayName)
         .catch((err) => replyUnableToChangeNick(message, nonPrefixedDisplayName, err));
     }
   }
-  message.delete({timeout: 5000}).catch(console.error);
+  message.delete({timeout: 5000}).catch();
 }
 
 function coStToggle(nonPrefixedDisplayName, isStTagged, isCoStTagged, message, activeStorytellerRole) {
   if (!isCoStTagged) {
     if (isStTagged) {
-      message.member.roles.remove(activeStorytellerRole).catch(console.error);
+      message.member.roles.remove(activeStorytellerRole).catch();
     }
     message.member.setNickname('(Co-ST) ' + nonPrefixedDisplayName)
       .catch((err) => replyUnableToChangeNick(message, '(Co-ST) ' + nonPrefixedDisplayName, err));
@@ -111,13 +111,13 @@ function coStToggle(nonPrefixedDisplayName, isStTagged, isCoStTagged, message, a
     message.member.setNickname(nonPrefixedDisplayName)
       .catch((err) => replyUnableToChangeNick(message, nonPrefixedDisplayName, err));
   }
-  message.delete({timeout: 5000}).catch(console.error);
+  message.delete({timeout: 5000}).catch();
 }
 
 function travelerToggle(nonPrefixedDisplayName, isStTagged, isTravelerTagged, message, activeStorytellerRole) {
   if (!isTravelerTagged) {
     if (isStTagged) {
-      message.member.roles.remove(activeStorytellerRole).catch(console.error);
+      message.member.roles.remove(activeStorytellerRole).catch();
     }
     message.member.setNickname('(T) ' + nonPrefixedDisplayName)
       .catch((err) => replyUnableToChangeNick(message, '(T) ' + nonPrefixedDisplayName, err));
@@ -125,7 +125,7 @@ function travelerToggle(nonPrefixedDisplayName, isStTagged, isTravelerTagged, me
     message.member.setNickname(nonPrefixedDisplayName)
       .catch((err) => replyUnableToChangeNick(message, nonPrefixedDisplayName, err));
   }
-  message.delete({timeout: 5000}).catch(console.error);
+  message.delete({timeout: 5000}).catch();
 }
 
 function newPlayerToggle(isNewPlayerTagged, message) {
@@ -136,7 +136,7 @@ function newPlayerToggle(isNewPlayerTagged, message) {
     message.member.setNickname(message.member.displayName.slice(0, -4))
       .catch((err) => replyUnableToChangeNick(message, message.member.displayName + ' :: without the trailing [N]', err));
   }
-  message.delete({timeout: 5000}).catch(console.error);
+  message.delete({timeout: 5000}).catch();
 }
 
 function brbToggle(isBrbTagged, message) {
@@ -147,7 +147,7 @@ function brbToggle(isBrbTagged, message) {
     message.member.setNickname(message.member.displayName.slice(0, -6))
       .catch((err) => replyUnableToChangeNick(message, message.member.displayName + ' :: without the trailing [BRB]', err));
   }
-  message.delete({timeout: 5000}).catch(console.error);
+  message.delete({timeout: 5000}).catch();
 }
 
 //TODO: this would still require st flagged handling.. potential scrap? or leave st requests separated and remove active-st role by default?
