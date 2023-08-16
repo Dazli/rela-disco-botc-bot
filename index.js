@@ -75,6 +75,11 @@ function specToggle(nonPrefixedDisplayName, isSpecTagged, isStTagged, message, a
     message.member.setNickname(nonPrefixedDisplayName)
       .catch((err) => replyUnableToChangeNick(message, nonPrefixedDisplayName, err));
   }
+  try {
+    message.delete({timeout: 5000});
+  } catch(err) {
+    console.error(err);
+  }
 }
 
 function stToggle(nonPrefixedDisplayName, isStTagged, message, storytellerRole, activeStorytellerRole) {
