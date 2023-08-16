@@ -147,7 +147,7 @@ function brbToggle(isBrbTagged, message) {
     message.member.setNickname(message.member.displayName.slice(0, -6))
       .catch((err) => replyUnableToChangeNick(message, message.member.displayName + ' :: without the trailing [BRB]', err));
   }
-  message.delete({timeout: 5000}).catch();
+  message.delete({timeout: "5000"}).catch();
 }
 
 //TODO: this would still require st flagged handling.. potential scrap? or leave st requests separated and remove active-st role by default?
