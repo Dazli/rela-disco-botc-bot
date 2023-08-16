@@ -70,8 +70,8 @@ client.on('messageCreate', async (message) => {
 
 function specToggle(nonPrefixedDisplayName, isSpecTagged, message, activePlayerRole, activeStorytellerRole) {
   if (!isSpecTagged) {
-    message.member.roles.remove(activeStorytellerRole).catch();
-    message.member.roles.remove(activePlayerRole).catch();
+    message.member.roles.remove(activeStorytellerRole).catch((err) => console.error('Could not remove role: ', 'activeStorytellerRole'));
+    message.member.roles.remove(activePlayerRole).catch((err) => console.error('Could not remove role: ', 'activePlayerRole'));
     message.member.setNickname('!' + nonPrefixedDisplayName)
       .catch((err) => replyUnableToChangeNick(message, '!' + nonPrefixedDisplayName, err));
   } else {
@@ -82,18 +82,18 @@ function specToggle(nonPrefixedDisplayName, isSpecTagged, message, activePlayerR
 }
 
 function activatePlayer(nonPrefixedDisplayName, message, activePlayerRole, activeStorytellerRole) {
-  message.member.roles.remove(activeStorytellerRole).catch();
-  message.member.roles.add(activePlayerRole).catch();
+  message.member.roles.remove(activeStorytellerRole).catch((err) => console.error('Could not remove role: ', 'activeStorytellerRole'));
+  message.member.roles.add(activePlayerRole).catch((err) => console.error('Could not remove role: ', 'activePlayerRole'));
   message.member.setNickname(nonPrefixedDisplayName)
     .catch((err) => replyUnableToChangeNick(message, nonPrefixedDisplayName, err));
-  setTimeout(() => message.delete().catch(), 3000);
+  setTimeout(() => message.delete().catch((err) => console.error('Could not delete message by: ', message.member.displayName)), 3000);
 }
 
 function stToggle(nonPrefixedDisplayName, isStTagged, message, activePlayerRole, storytellerRole, activeStorytellerRole) {
   if (!message.member.roles.cache.has(activeStorytellerRole.id)) {
     if (message.member.roles.cache.has(storytellerRole.id)) {
-      message.member.roles.remove(activePlayerRole).catch();
-      message.member.roles.add(activeStorytellerRole).catch();
+      message.member.roles.add(activeStorytellerRole).catch((err) => console.error('Could not add role: ', 'activeStorytellerRole'));
+      message.member.roles.remove(activePlayerRole).catch((err) => console.error('Could not remove role: ', 'activePlayerRole'));
       if (!isStTagged) {
         message.member.setNickname('(ST) ' + nonPrefixedDisplayName)
           .catch((err) => replyUnableToChangeNick(message, '(ST) ' + nonPrefixedDisplayName, err));
@@ -103,38 +103,38 @@ function stToggle(nonPrefixedDisplayName, isStTagged, message, activePlayerRole,
       // ephemeral responses only function with slashcommands, consider looking into this
     }
   } else {
-    message.member.roles.remove(activeStorytellerRole).catch();
+    message.member.roles.remove(activeStorytellerRole).catch((err) => console.error('Could not remove role: ', 'activeStorytellerRole'));
     if (isStTagged) {
       message.member.setNickname(nonPrefixedDisplayName)
         .catch((err) => replyUnableToChangeNick(message, nonPrefixedDisplayName, err));
     }
   }
-  setTimeout(() => message.delete().catch(), 3000);
+  setTimeout(() => message.delete().catch((err) => console.error('Could not delete message by: ', message.member.displayName)), 3000);
 }
 
 function coStToggle(nonPrefixedDisplayName, isCoStTagged, message, activePlayerRole, activeStorytellerRole) {
   if (!isCoStTagged) {
-    message.member.roles.remove(activeStorytellerRole).catch();
-    message.member.roles.remove(activePlayerRole).catch();
+    message.member.roles.remove(activeStorytellerRole).catch((err) => console.error('Could not remove role: ', 'activeStorytellerRole'));
+    message.member.roles.remove(activePlayerRole).catch((err) => console.error('Could not remove role: ', 'activePlayerRole'));
     message.member.setNickname('(Co-ST) ' + nonPrefixedDisplayName)
       .catch((err) => replyUnableToChangeNick(message, '(Co-ST) ' + nonPrefixedDisplayName, err));
   } else {
     message.member.setNickname(nonPrefixedDisplayName)
       .catch((err) => replyUnableToChangeNick(message, nonPrefixedDisplayName, err));
   }
-  setTimeout(() => message.delete().catch(), 3000);
+  setTimeout(() => message.delete().catch((err) => console.error('Could not delete message by: ', message.member.displayName)), 3000);
 }
 
 function travelerToggle(nonPrefixedDisplayName, isTravelerTagged, message, activeStorytellerRole) {
   if (!isTravelerTagged) {
-    message.member.roles.remove(activeStorytellerRole).catch();
+    message.member.roles.remove(activeStorytellerRole).catch((err) => console.error('Could not remove role: ', 'activeStorytellerRole'));
     message.member.setNickname('(T) ' + nonPrefixedDisplayName)
       .catch((err) => replyUnableToChangeNick(message, '(T) ' + nonPrefixedDisplayName, err));
   } else {
     message.member.setNickname(nonPrefixedDisplayName)
       .catch((err) => replyUnableToChangeNick(message, nonPrefixedDisplayName, err));
   }
-  setTimeout(() => message.delete().catch(), 3000);
+  setTimeout(() => message.delete().catch((err) => console.error('Could not delete message by: ', message.member.displayName)), 3000);
 }
 
 function newPlayerToggle(isNewPlayerTagged, message) {
@@ -145,7 +145,7 @@ function newPlayerToggle(isNewPlayerTagged, message) {
     message.member.setNickname(message.member.displayName.slice(0, -4))
       .catch((err) => replyUnableToChangeNick(message, message.member.displayName + ' :: without the trailing [N]', err));
   }
-  setTimeout(() => message.delete().catch(), 3000);
+  setTimeout(() => message.delete().catch((err) => console.error('Could not delete message by: ', message.member.displayName)), 3000);
 }
 
 function brbToggle(isBrbTagged, message) {
@@ -156,7 +156,7 @@ function brbToggle(isBrbTagged, message) {
     message.member.setNickname(message.member.displayName.slice(0, -6))
       .catch((err) => replyUnableToChangeNick(message, message.member.displayName + ' :: without the trailing [BRB]', err));
   }
-  setTimeout(() => message.delete().catch(), 3000);
+  setTimeout(() => message.delete().catch((err) => console.error('Could not delete message by: ', message.member.displayName)), 3000);
 }
 
 //TODO: this would still require st flagged handling.. potential scrap? or leave st requests separated and remove active-st role by default?
