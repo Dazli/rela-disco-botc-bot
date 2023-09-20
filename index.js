@@ -1,14 +1,19 @@
 #!/usr/bin/env node
 require('dotenv').config();
 
+// NOTE TO SELF:
+// investigate linuxbrew for potentially sorting package management, absolutely not required
+
 const axios = require('axios');
 const { Client, EmbedBuilder, GatewayIntentBits } = require('discord.js');
 const roles = require('./roles.json');
 const client = new Client({ intents:
           [
             GatewayIntentBits.Guilds,
+            GatewayIntentBits.GuildMembers,
+            GatewayIntentBits.GuildModeration,
             GatewayIntentBits.GuildMessages,
-            GatewayIntentBits.MessageContent,
+            GatewayIntentBits.GuildMessageReactions,
             GatewayIntentBits.MessageContent
           ] });
 
@@ -41,6 +46,7 @@ client.on('messageCreate', async (message) => {
     `*t` : toggle on or off a "traveler" tag prefixing your nickname "(T)"\n\
     `*new` : toggle on or off a "new player" tag at the end of your name: "playerName [N]"\n\
     `*brb` : toggle on or off a "brb" tag at the end of your name: "playerName [BRB]"\n\
+    `*consult` : TBA"\n\
     `!role undertaker` : list with any character role, and a link to the wiki page will be presented if found\n\
     `!remindme` : set a timer in minutes with a message.. example for 6min timer stating "nominations": !remindme 6 nominations'
     });
@@ -58,6 +64,8 @@ client.on('messageCreate', async (message) => {
     newPlayerToggle(isNewPlayerTagged, message);
   } else if (message.content === '*brb') {
     brbToggle(isBrbTagged, message);
+  } else if (message.content === '*consult') {
+    consult(message);
 //  } else if (message.content === '*TODO_ANYTHING') {
 //    togglePrefix(message);
   } else if (message.content.startsWith('!role')) {
@@ -65,6 +73,23 @@ client.on('messageCreate', async (message) => {
     wikiCharacterLinkRequest(message);
   } else if (message.content.startsWith('!remindme')) {
     remindMe(message);
+  } else if (message.content.startsWith('!givestright')) {
+    giveStRight(message, storytellerRole);
+  }
+});
+
+client.on('messageReactionAdd', async (reaction_orig, user) => {
+  if (reaction_orig.message.content === '*consult') {
+    const message = reaction_orig.message;
+    const activeStorytellerRole = message.guild.roles.cache.find(r => r.name === 'active-botc-storyteller');
+    const consultMessageUser = message.member;
+    const reactingUser = user;
+    if (reactingUser.roles.cache.has(activeStorytellerRole.id)) {
+      const category = message.guild.channels.cache.find(channel => (channel.type === "GUILD_CATEGORY" && channel.name === "BLOOD ON THE CLOCKTOWER"));
+      const consultChannel = message.guild.channels.cache.find(channel => channel.name === "Storyteller Consultation" && channel.parentId === category.id);
+      reactingUser.voice.setChannel(consultChannel);
+      consultMessageUser.voice.setChannel(consultChannel);
+    }
   }
 });
 
@@ -157,6 +182,16 @@ function brbToggle(isBrbTagged, message) {
       .catch((err) => replyUnableToChangeNick(message, message.member.displayName + ' :: without the trailing [BRB]', err));
   }
   setTimeout(() => message.delete().catch((err) => console.error('Could not delete message by: ', message.member.displayName)), 3000);
+}
+
+function consult(message) {
+  message.react(':ok:');
+}
+
+function giveStRight(message, storytellerRole) {
+//  if (!message.member.roles.cache.has(activeStorytellerRole.id)) {
+//  storytellerRole
+  message.react(':ok:');
 }
 
 //TODO: this would still require st flagged handling.. potential scrap? or leave st requests separated and remove active-st role by default?
