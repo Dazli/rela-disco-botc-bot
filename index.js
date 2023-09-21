@@ -7,6 +7,7 @@ require('dotenv').config();
 const axios = require('axios');
 const { Client, EmbedBuilder, GatewayIntentBits } = require('discord.js');
 const roles = require('./roles.json');
+const emojis = require('./emojis.json');
 const client = new Client({ intents:
           [
             GatewayIntentBits.Guilds,
@@ -37,18 +38,21 @@ client.on('messageCreate', async (message) => {
   
   if (message.content === '!dbotc help') {
     message.channel.send({content:
-    'commands:\n\
+    'general commands:\n\
     `!dbotc help` : this info block\n\
+    `!role undertaker` : list with any character role, and a link to the wiki page will be presented if found\n\
+    `!remindme` : set a timer in minutes with a message.. example for 6min timer stating "nominations": !remindme 6 nominations\n\
+player commands:\n\
     `*!` : toggle a "spectator" tag and remove active game roles (an exclamation mark is placed in front of your name)\n\
     `*join` : add an active player role to yourself, removing any prefix tags and any unrelevant active-game roles\n\
-    `*st` : a user with the appropriate role may enable/disable the active-ST role and tag "(ST)"\n\
-    `*cost` : toggle on or off a "co-storyteller" tag prefixing your nickname "(Co-ST)", this will not give you active-ST capabilities\n\
-    `*t` : toggle on or off a "traveler" tag prefixing your nickname "(T)"\n\
+    `*t` : toggle on or off a "traveler" tag prefixing your nickname "(T)" - use after joining with `*join`\n\
     `*new` : toggle on or off a "new player" tag at the end of your name: "playerName [N]"\n\
     `*brb` : toggle on or off a "brb" tag at the end of your name: "playerName [BRB]"\n\
-    `*consult` : TBA"\n\
-    `!role undertaker` : list with any character role, and a link to the wiki page will be presented if found\n\
-    `!remindme` : set a timer in minutes with a message.. example for 6min timer stating "nominations": !remindme 6 nominations'
+commands while playing:\n\
+    `*consult` : type this to request a storyteller consultation, the ST can click the "OK" reaction and this will pull you both to the storyteller consultation voice channel\n\
+storyteller commands:\n\
+    `*st` : a user with the appropriate role may enable/disable the active-ST role and tag "(ST)"\n\
+    `*cost` : toggle on or off a "co-storyteller" tag prefixing your nickname "(Co-ST)", this will not give you active-ST capabilities'
     });
   } else if (message.content === '*!') {
     specToggle(nonPrefixedDisplayName, isSpecTagged, message, activePlayerRole, activeStorytellerRole);
@@ -79,16 +83,17 @@ client.on('messageCreate', async (message) => {
 });
 
 client.on('messageReactionAdd', async (reaction_orig, user) => {
-  if (reaction_orig.message.content === '*consult') {
+  if (!user.bot && user.username !== 'DBotC' && reaction_orig.message.content === '*consult') {
     const message = reaction_orig.message;
     const activeStorytellerRole = message.guild.roles.cache.find(r => r.name === 'active-botc-storyteller');
-    const consultMessageUser = message.member;
-    const reactingUser = user;
-    if (reactingUser.roles.cache.has(activeStorytellerRole.id)) {
-      const category = message.guild.channels.cache.find(channel => (channel.type === "GUILD_CATEGORY" && channel.name === "BLOOD ON THE CLOCKTOWER"));
+    const reactingMember = message.guild.members.cache.get(user.id);
+    if (reactingMember.roles.cache.has(activeStorytellerRole.id)) {
+      const consultMessageMember = message.guild.members.cache.get(message.author.id);
+      const category = message.guild.channels.cache.find(channel => (channel.type === 4 /* GUILD_CATEGORY */ && ["Blood on the Clocktower", 'botdev'].includes(channel.name)));
       const consultChannel = message.guild.channels.cache.find(channel => channel.name === "Storyteller Consultation" && channel.parentId === category.id);
-      reactingUser.voice.setChannel(consultChannel);
-      consultMessageUser.voice.setChannel(consultChannel);
+      reactingMember.voice.setChannel(consultChannel);
+      consultMessageMember.voice.setChannel(consultChannel);
+      setTimeout(() => message.delete().catch((err) => console.error('Could not delete message by: ', message.member.displayName)), 3000);
     }
   }
 });
@@ -185,7 +190,7 @@ function brbToggle(isBrbTagged, message) {
 }
 
 function consult(message) {
-  message.react(':ok:');
+  message.react(emojis['ok']);
 }
 
 function giveStRight(message, storytellerRole) {
