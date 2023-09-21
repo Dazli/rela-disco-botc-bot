@@ -2560,5 +2560,11 @@
                 "name": "Ferryman",
                 "team": "fabled",
                 "ability": "On the final day, all dead players regain their vote token."
-        }
+        },
+        {
+		"id":"plaguedoctor",
+		"name":"Plague Doctor",
+                "team": "outsider",
+		"ability":"If you die, the Storyteller gains a not-in-play Minion ability"
+	}
 ]
