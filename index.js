@@ -38,30 +38,38 @@ client.on('messageCreate', async (message) => {
   
   if (message.content === '!dbotc help') {
     message.channel.send({content:
-    'general commands:\n\
+'general commands:\n\
     `!dbotc help` : this info block\n\
+    `!howto` : a basic list of info and \n\
     `!role undertaker` : list with any character role, and a link to the wiki page will be presented if found\n\
     `!remindme` : set a timer in minutes with a message.. example for 6min timer stating "nominations": !remindme 6 nominations\n\
+\n\
 player commands:\n\
     `*!` : toggle a "spectator" tag and remove active game roles (an exclamation mark is placed in front of your name)\n\
     `*join` : add an active player role to yourself, removing any prefix tags and any unrelevant active-game roles\n\
     `*t` : toggle on or off a "traveler" tag prefixing your nickname "(T)" - use after joining with `*join`\n\
     `*new` : toggle on or off a "new player" tag at the end of your name: "playerName [N]"\n\
     `*brb` : toggle on or off a "brb" tag at the end of your name: "playerName [BRB]"\n\
+\n\
 commands while playing:\n\
     `*consult` : type this to request a storyteller consultation, the ST can click the "OK" reaction and this will pull you both to the storyteller consultation voice channel\n\
+    `*grim` : (AVAILABLE SOON™) type this to see if anyone with the active storyteller role has sent out a grimoire link\n\
+\n\
 storyteller commands:\n\
     `*st` : a user with the appropriate role may enable/disable the active-ST role and tag "(ST)"\n\
     `*cost` : toggle on or off a "co-storyteller" tag prefixing your nickname "(Co-ST)", this will not give you active-ST capabilities'
     });
+  } else if (message.content === '!howto') {
+    howToInfo(message);
+  } else if (message.content.startsWith('!role')) {
+    //TODO: add "!role" vs "!role " error handling and "usage" info response within linkRequest function
+    wikiCharacterLinkRequest(message);
+  } else if (message.content.startsWith('!remindme')) {
+    remindMe(message);
   } else if (message.content === '*!') {
     specToggle(nonPrefixedDisplayName, isSpecTagged, message, activePlayerRole, activeStorytellerRole);
   } else if (message.content === '*join') {
     activatePlayer(nonPrefixedDisplayName, message, activePlayerRole, activeStorytellerRole);
-  } else if (message.content === '*st') {
-    stToggle(nonPrefixedDisplayName, isStTagged, message, activePlayerRole, storytellerRole, activeStorytellerRole);
-  } else if (message.content === '*cost') {
-    coStToggle(nonPrefixedDisplayName, isCoStTagged, message, activePlayerRole, activeStorytellerRole);
   } else if (message.content === '*t') {
     travelerToggle(nonPrefixedDisplayName, isTravelerTagged, message, activeStorytellerRole);
   } else if (message.content === '*new') {
@@ -70,15 +78,16 @@ storyteller commands:\n\
     brbToggle(isBrbTagged, message);
   } else if (message.content === '*consult') {
     consult(message);
+//  } else if (message.content === '*grim') {
+//    sendGrimoireLinkToChat(message);
+  } else if (message.content === '*st') {
+    stToggle(nonPrefixedDisplayName, isStTagged, message, activePlayerRole, storytellerRole, activeStorytellerRole);
+  } else if (message.content === '*cost') {
+    coStToggle(nonPrefixedDisplayName, isCoStTagged, message, activePlayerRole, activeStorytellerRole);
+  } else if (message.content.startsWith === 'https://clocktower.online/' || message.content.startsWith === 'https://clocktower.live/') {
+    registerGrimLink(message);
 //  } else if (message.content === '*TODO_ANYTHING') {
 //    togglePrefix(message);
-  } else if (message.content.startsWith('!role')) {
-    //TODO: add "!role" vs "!role " error handling and "usage" info response within linkRequest function
-    wikiCharacterLinkRequest(message);
-  } else if (message.content.startsWith('!remindme')) {
-    remindMe(message);
-  } else if (message.content.startsWith('!givestright')) {
-    giveStRight(message, storytellerRole);
   }
 });
 
@@ -97,6 +106,31 @@ client.on('messageReactionAdd', async (reaction_orig, user) => {
     }
   }
 });
+
+function howToInfo(message) {
+  //CREDIT: this was copypaste from a Unofficial official Blood on the Clocktower discord server bot, I do not know the creator
+  message.channel.send({content:
+`<[=+----+={ Welcome to Blood On The Clocktower }=+----+=]>
+----------------------------
+<[=+----+={  Bra1n Tool Basics  }=+----+=]>
+
+1- Click on your name on the grim and choose Claim Seat to claim your seat.
+2- Press R to see the Role Sheet.
+3- Press V to see the Vote History.
+4- Press N to see the roles\' Night Order.
+
+<[=+----+={  Basic BOTC Slang Terminology  }=+----+=]>
+
+Starpass: The Imp can kill themselves, and an alive minion becomes the new Imp.
+Mayor Bounce: If the Demon attacks the Mayor in the night, another player might die instead (ST Chooses whether that happens and who gets killed instead).
+Three-for-three or Two-for-Two: The players exchange a number of roles, and would typically include their real role.
+Hard Claim: A claim of a single role that is supposed to be the player\'s real role.
+Pings: A player having pings on them means there\'s information pointing to what their role or alignment might be. (e.g Washerwoman, Investigator, Fortune Teller, etc).
+Evil Ping: When information points to someone being potentionally evil. (e.g Investigator, Empath, etc)
+Proc: To trigger a trigger-based ability. (e.g Virgin).
+Top Four: Top 4 roles of the role sheet, More specifically the roles that get all of their information on the first night of the game.`
+  });
+}
 
 function specToggle(nonPrefixedDisplayName, isSpecTagged, message, activePlayerRole, activeStorytellerRole) {
   if (!isSpecTagged) {
@@ -193,11 +227,25 @@ function consult(message) {
   message.react(emojis['ok']);
 }
 
-function giveStRight(message, storytellerRole) {
-//  if (!message.member.roles.cache.has(activeStorytellerRole.id)) {
-//  storytellerRole
-  message.react(':ok:');
-}
+//function registerGrimLink(message) {
+//  //TODO: store grim link and send a reply to it:
+//  PUBLICVARGRIMS.push
+//  message.reply({content: 'Grim link https://clocktower.online/#trustkills added by ' + message.member.displayName + '\n\
+//Players can get the link by using the command *grim'});
+//}
+//
+//function sendGrimoireLinkToChat(message) {
+//  const grimResponseArr = [];
+//  foreach (PUBLICVARGRIMS)
+//    grimResponseArr.push('Online grimoire link from ' + activeSt  + ':\n\
+//https://clocktower.online/#harry');
+//  if (grimResponseArr.length === 0) {
+//    grimResponseArr.push('No online grimoire link available');
+//  }
+//  message.reply({content: grimResponse});
+//  Grim link https://clocktower.online/#trustkills added by (ST) Trusty (beans) #SMP
+//Players can get the link by using the command *grim
+//}
 
 //TODO: this would still require st flagged handling.. potential scrap? or leave st requests separated and remove active-st role by default?
 ////function togglePrefix(message) {
