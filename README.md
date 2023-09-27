@@ -1,4 +1,9 @@
-To start using, install npm packages: discord.js, axios, dotenv.
+This discord bot partially emulates the capabilities found on the "Unofficial official Blood on the Clocktower" discord.
+The code is mine, but many of the ideas originate on the mentioned server.
+
+:::::
+
+'To start using, install npm packages: discord.js, axios, dotenv.
 
 Requires a .env file with the discord bot id (the token created on the discord app site).
 
