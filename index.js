@@ -159,8 +159,9 @@ function stToggle(nonPrefixedDisplayName, isStTagged, message, activePlayerRole,
       message.member.roles.add(activeStorytellerRole).catch((err) => console.error('Could not add role: ', 'activeStorytellerRole'));
       message.member.roles.remove(activePlayerRole).catch((err) => console.error('Could not remove role: ', 'activePlayerRole'));
       if (!isStTagged) {
-        message.member.setNickname('(ST) ' + nonPrefixedDisplayName)
-          .catch((err) => replyUnableToChangeNick(message, '(ST) ' + nonPrefixedDisplayName, err));
+        setTimeout(message.member.setNickname('(ST) ' + nonPrefixedDisplayName)
+          .catch((err) => replyUnableToChangeNick(message, '(ST) ' + nonPrefixedDisplayName, err)),
+          1000);
       }
     } else {
       message.channel.send({/*ephemeral: true, */content: '`you lack permission to claim the active storyteller role`'});
@@ -169,8 +170,9 @@ function stToggle(nonPrefixedDisplayName, isStTagged, message, activePlayerRole,
   } else {
     message.member.roles.remove(activeStorytellerRole).catch((err) => console.error('Could not remove role: ', 'activeStorytellerRole'));
     if (isStTagged) {
-      message.member.setNickname(nonPrefixedDisplayName)
-        .catch((err) => replyUnableToChangeNick(message, nonPrefixedDisplayName, err));
+      setTimeout(message.member.setNickname(nonPrefixedDisplayName)
+        .catch((err) => replyUnableToChangeNick(message, nonPrefixedDisplayName, err)),
+        1000);
     }
   }
   setTimeout(() => message.delete().catch((err) => console.error('Could not delete message by: ', message.member.displayName)), 3000);
