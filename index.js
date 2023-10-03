@@ -293,7 +293,7 @@ async function wikiCharacterLinkRequest(message) {
                       .setURL(wikiUrl + formattedCharacterRoleName)
 //                      .setAuthor() // N/A
                       .setDescription(requestedRole.ability)
-                      .setThumbnail(characterThumbNail(resp.data), characterRoleName);
+                      .setThumbnail(characterThumbNail(resp.data, characterRoleName));
 
               message.channel.send({embeds: [wikiEmbed]});
             } else {
@@ -317,10 +317,10 @@ async function wikiCharacterLinkRequest(message) {
 
 function characterThumbNail(responseData, characterRoleName) {
   // TODO: consider swapping the images to utilize a manual list of official wiki images
-  const htmlRoleImgRegex = /<div id="character-details">[^<]*<p[^>]*>[^<]*<a[^>]+>[^<]*<img [\w=". ]* src="(https:\/\/[\w/ ]*)"[^>]*>/g;
-  const thumbnailUriArray = responseData.match(htmlRoleImgRegex);
+  const htmlRoleImgRegex = /<div id="character-details">[^<]*<p[^>]*>[^<]*<a[^>]+>[^<]*<img [\w=". ]* src="([\w/. -]*)"[^>]*>/g;
+  const thumbnailUriArray = [...responseData.matchAll(htmlRoleImgRegex)];
   if (thumbnailUriArray.length > 0) {
-    return 'https://wiki.bloodontheclocktower.com'+thumbnailUriArray[0];
+    return 'https://wiki.bloodontheclocktower.com'+thumbnailUriArray[0][1];
   } else {
     const thumbnailRoleName = lowercaseNoDelimiterRoleName(characterRoleName);
     return 'https://raw.githubusercontent.com/bra1n/townsquare/develop/src/assets/icons/' + thumbnailRoleName + '.png';
