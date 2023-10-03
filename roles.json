@@ -2566,5 +2566,11 @@
 		"name":"Plague Doctor",
                 "team": "outsider",
 		"ability":"If you die, the Storyteller gains a not-in-play Minion ability"
+	},
+	{
+		"id":"shugenja",
+		"name":"Shugenja",
+                "team": "townsfolk",
+		"ability":"You start knowing if your closest evil player is clockwise or anti-clockwise. If equidistant, this info is arbitrary"
 	}
 ]
