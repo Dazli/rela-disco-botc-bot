@@ -40,7 +40,7 @@ client.on('messageCreate', async (message) => {
     message.channel.send({content:
 'general commands:\n\
     `!dbotc help` : this info block\n\
-    `!howto` : a basic list of info and \n\
+    `!howto` : a basic list of info on how to use online grimoire and some slang terminology\n\
     `!role undertaker` : list with any character role, and a link to the wiki page will be presented if found\n\
     `!remindme` : set a timer in minutes with a message.. example for 6min timer stating "nominations": !remindme 6 nominations\n\
 \n\
