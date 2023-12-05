@@ -2473,110 +2473,116 @@
         "edition": "fabled",
         "ability": "Name a good character. If in play, they can only die by execution, but evil players learn which player it is."
     },
-    	{
-		"id": "gardener",
-		"firstNightReminder": "",
-		"otherNightReminder": "",
-		"reminders": [],
-		"setup": false,
-		"name": "Gardener",
-		"team": "fabled",
-		"edition": "fabled",
-		"ability": "The Storyteller assigns 1 or more players' characters.",
-		"special": [
-			{
-				"name": "distribute-roles",
-				"type": "ability",
-				"time": "pregame"
-			}
-		]
-	},
-	{
-		"id": "bootlegger",
-		"firstNightReminder": "",
-		"otherNightReminder": "",
-		"reminders": [],
-		"setup": false,
-		"name": "Bootlegger",
-		"team": "fabled",
-		"edition": "fabled",
-		"ability": "This script has homebrew characters or rules."
-	},
-	{
-		"id": "homebrewymchomebrewface",
-		"firstNightReminder": "",
-                "otherNightReminder": "",
-                "reminders": [],
-                "setup": false,
-                "name": "Homebrewy McHomebrewface",
-                "team": "fabled",
-                "edition": "fabled",
-                "ability": "This script has homebrew characters or rules."
-	},
-	{
-		"id": "vizier",
-		"name": "Vizier",
-		"team": "minion",
-		"edition": "",
-		"firstNightReminder": "Announce the Vizier player to the group.",
-		"reminders": [],
-		"setup": false,
-		"ability": "All players know who you are. You can not die during the day. If good voted, you may choose to execute immediately.",
-		"firstNight": 59,
-		"otherNight": 0
-	},
-        {
-                "id": "knight",
-                "name": "Knight",
-                "team": "townsfolk",
-                "ability": "You start knowing 2 players that are not the Demon"
-        },
-        {
-                "id": "steward",
-                "name": "Steward",
-                "team": "townsfolk",
-                "ability": "You start knowing 1 good player"
-        },
-	{
-                "id":"peasant",
-                "name": "Peasant",
-                "team": "townsfolk",
-                "ability": "🤫"
-	},
-	{
-                "id": "highpriestess",
-                "name": "High Priestess",
-                "team": "townsfolk",
-                "ability": "Each night, learn which player the Storyteller believes you should talk to most"
-	},
-	{
-                "id": "harpy",
-                "name": "Harpy",
-                "team": "minion",
-                "ability": "Each night, choose 2 players: tomorrow, the 1st player is mad the 2nd is evil, or both might die."
-	},
-        {
-                "id": "ferryman",
-                "name": "Ferryman",
-                "team": "fabled",
-                "ability": "On the final day, all dead players regain their vote token."
-        },
-        {
-		"id":"plaguedoctor",
-		"name":"Plague Doctor",
-                "team": "outsider",
-		"ability":"If you die, the Storyteller gains a not-in-play Minion ability"
-	},
-	{
-		"id":"shugenja",
-		"name":"Shugenja",
-                "team": "townsfolk",
-		"ability":"You start knowing if your closest evil player is clockwise or anti-clockwise. If equidistant, this info is arbitrary"
-	},
-        {
-		"id":"ojo",
-		"name":"Ojo",
-                "team": "demon",
-		"ability":"Each night*, choose a character: they die. If they are not in play, the Storyteller chooses who dies."
-	}
+    {
+        "id": "gardener",
+        "firstNightReminder": "",
+        "otherNightReminder": "",
+        "reminders": [],
+        "setup": false,
+        "name": "Gardener",
+        "team": "fabled",
+        "edition": "fabled",
+        "ability": "The Storyteller assigns 1 or more players' characters.",
+        "special": [
+            {
+                "name": "distribute-roles",
+                "type": "ability",
+                "time": "pregame"
+            }
+        ]
+    },
+    {
+        "id": "bootlegger",
+        "firstNightReminder": "",
+        "otherNightReminder": "",
+        "reminders": [],
+        "setup": false,
+        "name": "Bootlegger",
+        "team": "fabled",
+        "edition": "fabled",
+        "ability": "This script has homebrew characters or rules."
+    },
+    {
+        "id": "homebrewymchomebrewface",
+        "firstNightReminder": "",
+        "otherNightReminder": "",
+        "reminders": [],
+        "setup": false,
+        "name": "Homebrewy McHomebrewface",
+        "team": "fabled",
+        "edition": "fabled",
+        "ability": "This script has homebrew characters or rules."
+    },
+    {
+        "id": "vizier",
+        "name": "Vizier",
+        "team": "minion",
+        "edition": "",
+        "firstNightReminder": "Announce the Vizier player to the group.",
+        "reminders": [],
+        "setup": false,
+        "ability": "All players know who you are. You can not die during the day. If good voted, you may choose to execute immediately.",
+        "firstNight": 59,
+        "otherNight": 0
+    },
+    {
+        "id": "knight",
+        "name": "Knight",
+        "team": "townsfolk",
+        "ability": "You start knowing 2 players that are not the Demon"
+    },
+    {
+        "id": "steward",
+        "name": "Steward",
+        "team": "townsfolk",
+        "ability": "You start knowing 1 good player"
+    },
+    {
+        "id":"peasant",
+        "name": "Peasant",
+        "team": "townsfolk",
+        "ability": "🤫"
+    },
+    {
+        "id": "highpriestess",
+        "name": "High Priestess",
+        "team": "townsfolk",
+        "ability": "Each night, learn which player the Storyteller believes you should talk to most"
+    },
+    {
+        "id": "harpy",
+        "name": "Harpy",
+        "team": "minion",
+        "ability": "Each night, choose 2 players: tomorrow, the 1st player is mad the 2nd is evil, or both might die."
+    },
+    {
+        "id": "ferryman",
+        "name": "Ferryman",
+        "team": "fabled",
+        "ability": "On the final day, all dead players regain their vote token."
+    },
+    {
+        "id":"plaguedoctor",
+        "name":"Plague Doctor",
+        "team": "outsider",
+        "ability":"If you die, the Storyteller gains a not-in-play Minion ability"
+    },
+    {
+        "id":"shugenja",
+        "name":"Shugenja",
+        "team": "townsfolk",
+        "ability":"You start knowing if your closest evil player is clockwise or anti-clockwise. If equidistant, this info is arbitrary"
+    },
+    {
+        "id":"ojo",
+        "name":"Ojo",
+        "team": "demon",
+        "ability":"Each night*, choose a character: they die. If they are not in play, the Storyteller chooses who dies."
+    },
+    {
+        "id":"hatter",
+        "name":"Hatter",
+        "team": "outsider",
+        "ability":"If you died today or tonight, the Minion & Demon players may choose new Minion & Demon characters to be."
+    }
 ]
