@@ -385,9 +385,8 @@ function characterTeamColor(teamValue) {
 async function remindMe(message) {
   
   //TODO: check that \w was actually the regular alphanumerical checkup
-  const remindMeRegex = /^!remindme ([0-9][0-9]{0,2}) ([\w][\w\s]{1,100})$/
+  const remindMeRegex = /^!remindme ([0-9][0-9]{0,2}) ([\w][\w\s]{1,100})$/;
   const matchResult = message.content.match(remindMeRegex);
-  console.log(matchResult);
   if (message.content.startsWith('!remindme ') && matchResult) {
     const minutes = matchResult[1];
     const reminderMessage = matchResult[2];
