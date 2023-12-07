@@ -17,6 +17,10 @@ const client = new Client({ intents:
             GatewayIntentBits.GuildMessageReactions,
             GatewayIntentBits.MessageContent
           ] });
+global.grimLink;
+global.grimLink = {};
+global.defaultGrimLink;
+global.defaultGrimLink = 'https://clocktower.online OR https://clocktower.live';
 
 client.on('ready', () => {
   console.log('bot is ready');
@@ -53,11 +57,12 @@ player commands:\n\
 \n\
 commands while playing:\n\
     `*consult` : type this to request a storyteller consultation, the ST can click the "OK" reaction and this will pull you both to the storyteller consultation voice channel\n\
-    `*grim` : (AVAILABLE SOON™) type this to see if anyone with the active storyteller role has sent out a grimoire link\n\
+    `*grim` : type this to see if anyone with the active storyteller role has sent out a grimoire link\n\
 \n\
 storyteller commands:\n\
     `*st` : a user with the appropriate role may enable/disable the active-ST role and tag "(ST)"\n\
-    `*cost` : toggle on or off a "co-storyteller" tag prefixing your nickname "(Co-ST)", this will not give you active-ST capabilities'
+    `*cost` : toggle on or off a "co-storyteller" tag prefixing your nickname "(Co-ST)", this will not give you active-ST capabilities\n\
+    `*cleargrim` : manually clear any old grimoire links'
     });
   } else if (message.content === '!howto') {
     howToInfo(message);
@@ -78,14 +83,16 @@ storyteller commands:\n\
     brbToggle(isBrbTagged, message);
   } else if (message.content === '*consult') {
     consult(message);
-//  } else if (message.content === '*grim') {
-//    sendGrimoireLinkToChat(message);
+  } else if (message.content === '*grim') {
+    sendGrimoireLinkToChat(message);
   } else if (message.content === '*st') {
     stToggle(nonPrefixedDisplayName, isStTagged, message, activePlayerRole, storytellerRole, activeStorytellerRole);
   } else if (message.content === '*cost') {
     coStToggle(nonPrefixedDisplayName, isCoStTagged, message, activePlayerRole, activeStorytellerRole);
-  } else if (message.content.startsWith === 'https://clocktower.online/' || message.content.startsWith === 'https://clocktower.live/') {
-    registerGrimLink(message);
+  } else if (message.content === '*cleargrim') {
+    clearGrim();
+  } else if (message.content.startsWith('https://clocktower.online/#') || message.content.startsWith('https://clocktower.live/#')) {
+    registerGrimLink(message, activeStorytellerRole);
 //  } else if (message.content === '*TODO_ANYTHING') {
 //    togglePrefix(message);
   }
@@ -176,6 +183,7 @@ function stToggle(nonPrefixedDisplayName, isStTagged, message, activePlayerRole,
         .catch((err) => replyUnableToChangeNick(message, nonPrefixedDisplayName, err)),
         500);
     }
+    clearGrim();
   }
   setTimeout(() => message.delete().catch((err) => console.error('Could not delete message by: ', message.member.displayName)), 3000);
 }
@@ -233,25 +241,39 @@ function consult(message) {
   message.react(emojis['ok']);
 }
 
-//function registerGrimLink(message) {
-//  //TODO: store grim link and send a reply to it:
-//  PUBLICVARGRIMS.push
-//  message.reply({content: 'Grim link https://clocktower.online/#trustkills added by ' + message.member.displayName + '\n\
-//Players can get the link by using the command *grim'});
-//}
-//
-//function sendGrimoireLinkToChat(message) {
-//  const grimResponseArr = [];
-//  foreach (PUBLICVARGRIMS)
-//    grimResponseArr.push('Online grimoire link from ' + activeSt  + ':\n\
-//https://clocktower.online/#harry');
-//  if (grimResponseArr.length === 0) {
-//    grimResponseArr.push('No online grimoire link available');
-//  }
-//  message.reply({content: grimResponse});
-//  Grim link https://clocktower.online/#trustkills added by (ST) Trusty (beans) #SMP
-//Players can get the link by using the command *grim
-//}
+async function registerGrimLink(message, activeStorytellerRole) {
+  await message.suppressEmbeds();
+  //TODO: store grim link and send a reply to it:
+  const alNumClocktowerRegex = /^https:\/\/clocktower\.(online|live)\/#\w+$/;
+  if (alNumClocktowerRegex.test(message.content) && message.member.roles.cache.has(activeStorytellerRole.id)) {
+    await clearGrim();
+    global.grimLink[message.author.id] = /*message.member.displayName + ' added the grim link ' +*/ message.content;
+    message.reply({content: '```Grim link ' + message.content + ' added by ' + message.member.displayName + '\n\
+Players can get the link by using the command *grim```'});
+  }
+}
+
+async function clearGrim() {
+  //TODO: this may require revisiting if supporting multiple games running simultaneously is desired - currently no need considering server size and play frequency
+  global.grimLink = {};
+}
+
+async function sendGrimoireLinkToChat(message) {
+  let grimResponse;
+  if (Object.keys(global.grimLink).length > 0) {
+    let lineBreakTracker = 0;
+    for (const [key, value] of Object.entries(global.grimLink)) {
+      if (lineBreakTracker === 0) grimResponse = '\n\
+';
+      grimResponse += message.guild.members.cache.get(key).displayName + ' has sent an online grimoire link: ' + value;
+      lineBreakTracker++;
+    }
+  } else {
+    grimResponse = global.defaultGrimLink;
+  }
+  const grimResponseMessage = await message.channel.send({content: grimResponse});
+  await grimResponseMessage.suppressEmbeds();
+}
 
 //TODO: this would still require st flagged handling.. potential scrap? or leave st requests separated and remove active-st role by default?
 ////function togglePrefix(message) {
