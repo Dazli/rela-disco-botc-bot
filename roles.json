@@ -2584,5 +2584,11 @@
         "name":"Hatter",
         "team": "outsider",
         "ability":"If you died today or tonight, the Minion & Demon players may choose new Minion & Demon characters to be."
+    },
+    {
+        "id":"kazali",
+        "name":"Kazali",
+        "team": "demon",
+        "ability":"Each night*, choose a player: they die. [You choose which players are which Minions. -? to +? Outsiders]"
     }
 ]
