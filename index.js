@@ -183,7 +183,7 @@ function stToggle(nonPrefixedDisplayName, isStTagged, message, activePlayerRole,
         .catch((err) => replyUnableToChangeNick(message, nonPrefixedDisplayName, err)),
         500);
     }
-    clearGrim();
+    clearGrim(message.author.id);
   }
   setTimeout(() => message.delete().catch((err) => console.error('Could not delete message by: ', message.member.displayName)), 3000);
 }
@@ -246,16 +246,19 @@ async function registerGrimLink(message, activeStorytellerRole) {
   //TODO: store grim link and send a reply to it:
   const alNumClocktowerRegex = /^https:\/\/clocktower\.(online|live)\/#\w+$/;
   if (alNumClocktowerRegex.test(message.content) && message.member.roles.cache.has(activeStorytellerRole.id)) {
-    await clearGrim();
+//    await clearGrim();
     global.grimLink[message.author.id] = /*message.member.displayName + ' added the grim link ' +*/ message.content;
     message.reply({content: '```Grim link ' + message.content + ' added by ' + message.member.displayName + '\n\
 Players can get the link by using the command *grim```'});
   }
 }
 
-async function clearGrim() {
-  //TODO: this may require revisiting if supporting multiple games running simultaneously is desired - currently no need considering server size and play frequency
-  global.grimLink = {};
+async function clearGrim(messageAuthorId = null) {
+  if (messageAuthorId) {
+    delete global.grimLink[messageAuthorId];
+  } else {
+    global.grimLink = {};
+  }
 }
 
 async function sendGrimoireLinkToChat(message) {
